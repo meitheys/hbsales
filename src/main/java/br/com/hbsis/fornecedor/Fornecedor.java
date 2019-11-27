@@ -40,6 +40,10 @@ public class Fornecedor {
         return id;
     }
 
+    public void setId() {
+        this.id = id;
+    }
+
     public String getRazao() { return razao; }
 
     public void setRazao(String razao) {
