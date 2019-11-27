@@ -1,10 +1,14 @@
 package br.com.hbsis.fornecedor;
 
+import br.com.hbsis.categoria.Categoria;
+import br.com.hbsis.categoria.CategoriaDTO;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "seg_fornecedores")
-class Fornecedor {
+public class Fornecedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,6 +17,8 @@ class Fornecedor {
     private String razao;
     @Column(name = "cnpj", nullable = false, length = 14)
     private String cnpj;
+    @OneToMany(mappedBy = "fornecedor", targetEntity = Categoria.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Categoria> categorias;
     @Column(name = "nome", unique = true, updatable = false, length = 200)
     private String nome;
     @Column(name = "endereco", nullable = false, length = 150)
@@ -21,6 +27,14 @@ class Fornecedor {
     private String telefone;
     @Column(name = "email", unique = true, updatable = false, length = 100)
     private String email;
+
+    public List<Categoria> getCategorias() {
+        return categorias;
+    }
+
+    public void setCategorias(List<Categoria> categorias) {
+        this.categorias = categorias;
+    }
 
     public Long getId() {
         return id;

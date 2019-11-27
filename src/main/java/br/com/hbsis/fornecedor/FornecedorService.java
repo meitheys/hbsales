@@ -14,7 +14,7 @@ public class FornecedorService {
     private final FornecedorRepository fornecedorRepository;
 
     public FornecedorService(FornecedorRepository fornecedorRepository) {
-        this.fornecedorRepository =  fornecedorRepository;
+        this.fornecedorRepository = fornecedorRepository;
     }
 
     public FornecedorDTO save(FornecedorDTO fornecedorDTO) {
@@ -49,10 +49,21 @@ public class FornecedorService {
         Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findById(id);
 
         if (fornecedorOptional.isPresent()) {
-            return FornecedorDTO.of(fornecedorOptional.get());
+            Fornecedor fornecedor = fornecedorOptional.get();
+            return FornecedorDTO.of(fornecedor);
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public Fornecedor findIdFornecedor (Long id){
+        Optional<Fornecedor> fornecedorOptional1 = this.fornecedorRepository.findById(id);
+
+        if (fornecedorOptional1.isPresent()) {
+            return fornecedorOptional1.get();
+        }
+
+        throw new IllegalArgumentException(String.format("Fornecedor não existe:", id));
     }
 
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
@@ -85,7 +96,6 @@ public class FornecedorService {
 
         this.fornecedorRepository.deleteById(id);
     }
-
 
 
 }

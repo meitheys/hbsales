@@ -1,12 +1,12 @@
 create table seg_fornecedores
 (
-    id    BIGINT IDENTITY (1, 1) NOT NULL,
-    razao VARCHAR(100)           NOT NULL,
-    cnpj VARCHAR(255)           NOT NULL,
-    nome  VARCHAR(100)            NOT NULL,
-    endereco VARCHAR(100)            NOT NULL,
-    telefone VARCHAR(16)            NOT NULL,
-    email VARCHAR(100)            NOT NULL,
+                id          BIGINT IDENTITY (1, 1)   PRIMARY KEY NOT NULL,
+                razao       VARCHAR(100)                        NOT NULL,
+                cnpj        VARCHAR(255)                        NOT NULL,
+                nome        VARCHAR(100)                        NOT NULL,
+                endereco    VARCHAR(100)                        NOT NULL,
+                telefone    VARCHAR(16)                         NOT NULL,
+                email       VARCHAR(100)                        NOT NULL,
 
 
 
