@@ -6,11 +6,17 @@ import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorRepository;
 import br.com.hbsis.fornecedor.FornecedorService;
 import com.microsoft.sqlserver.jdbc.StringUtils;
-import com.opencsv.CSVReader;
+import com.opencsv.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +29,14 @@ public class CategoriaService {
     private final ICategoriaRepository iCategoriaRepository;
     private final FornecedorRepository iFornecedorRepository;
     private final FornecedorService fornecedorService;
+    private final FornecedorDTO fornecedorDTO;
+    private Object FornecedorDTO;
 
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorRepository iFornecedorRepository, FornecedorService fornecedorService) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorRepository iFornecedorRepository, FornecedorService fornecedorService, FornecedorDTO fornecedorDTO) {
         this.iCategoriaRepository = iCategoriaRepository;
         this.iFornecedorRepository = iFornecedorRepository;
         this.fornecedorService = fornecedorService;
+        this.fornecedorDTO = fornecedorDTO;
     }
 
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
@@ -42,6 +51,7 @@ public class CategoriaService {
         categoria = this.iCategoriaRepository.save(categoria);
 
         return CategoriaDTO.of(categoria);
+
     }
 
     private void validate(CategoriaDTO categoriaDTO) {
@@ -99,43 +109,70 @@ public class CategoriaService {
 
     //findAll encontra as categorias nas List.
 
-    public  List<Categoria> findAll(){
-        return iCategoriaRepository.findAll();
-    }
+    public void findAll(HttpServletResponse resposta) throws Exception {
+        String arquivo = "categoria.csv";
+        resposta.setContentType("text/csv");
+        resposta.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo + "\"");
 
-    public List<Categoria> readAll(Reader leitor) throws Exception{
-        CSVReader ler = new CSVReader(leitor);
-        List<Categoria> resultadoLeitura = new ArrayList<>();
-        String[] linha;
-        while((linha = ler.readNext()) != null) {
-            Categoria categoria = new Categoria();
+        PrintWriter escritor = resposta.getWriter();
 
-            FornecedorService fornecedorService = new FornecedorService(iFornecedorRepository);
-            FornecedorDTO fornecedorDTO;
-            Fornecedor fornecedor = new Fornecedor();
+        ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
+        String tituloCSV[] = {"id_categoria", "nome_categoria", "id_fornecedor"};
+        icsvWriter.writeNext(tituloCSV);
 
-            fornecedorDTO = fornecedorService.findById(Long.parseLong(linha[3]));
-
-            fornecedor.setRazao(fornecedorDTO.getRazao());
-            fornecedor.setCnpj(fornecedorDTO.getCnpj());
-            fornecedor.setNome(fornecedorDTO.getNome());
-            fornecedor.setEndereco(fornecedorDTO.getNome());
-            fornecedor.setTelefone(fornecedorDTO.getTelefone());
-            fornecedor.setEmail(fornecedorDTO.getEmail());
-
-            categoria.setFornecedor(fornecedor);
-            categoria.setNomeCategoria(linha[2]);
-
-            resultadoLeitura.add(categoria);
+        for (Categoria linhas : iCategoriaRepository.findAll()) {
+            icsvWriter.writeNext(new String[]{linhas.getId().toString(), linhas.getNomeCategoria(), linhas.getFornecedor().toString()});
         }
-        leitor.close();
-        ler.close();
-        return resultadoLeitura;
+
     }
 
-    /*public List<Categoria> saveAll(List<Categoria> categorias) throws Exception{
-        return iCategoriaRepository.saveAll(categorias);
-    }*/
+    public List<Categoria> leitorTotal(MultipartFile importacao) throws Exception {
+        InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
+        //Perguntar
+
+        CSVReader leitor = new CSVReaderBuilder(insercao).withSkipLines(1).build();
+
+            List<String[]> linhaS = leitor.readAll();
+            List<Categoria> resultado = new ArrayList<>();
+
+            for(String[] linha : linhaS) {
+
+                try {
+
+                    //Quebrando o arquivo CSV em valores.
+
+                    String[] dados = linha[0].replaceAll("\"", "").split(";");
+
+                    Categoria categoria = new Categoria();
+                    Fornecedor fornecedor = new Fornecedor();
+                    FornecedorDTO = fornecedorService.findById(Long.parseLong(dados[1]));
+
+                    //dados[x] = dado pego baseado na formatação csv
+
+                    categoria.setId(Long.parseLong(dados[1]));
+                    categoria.setFornecedor(fornecedor);
+                    categoria.setNomeCategoria((dados[2]));
+
+                    fornecedor.setEmail(fornecedorDTO.getEmail());
+                    fornecedor.setTelefone(fornecedorDTO.getTelefone());
+                    fornecedor.setEndereco(fornecedorDTO.getEndereco());
+                    fornecedor.setNome(fornecedorDTO.getNome());
+                    fornecedor.setCnpj(fornecedorDTO.getCnpj());
+                    fornecedor.setRazao(fornecedorDTO.getRazao());
+
+
+
+                    resultado.add(categoria);
+                    System.out.println(resultado);
+
+                }catch (Exception e){
+                    e.printStackTrace();
+
+                }
+            }
+        return iCategoriaRepository.saveAll(resultado);
+
+    }
 
 }

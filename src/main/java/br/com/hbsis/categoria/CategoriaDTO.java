@@ -28,6 +28,10 @@ public class CategoriaDTO {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getFornecedor() {
         return fornecedor;
     }

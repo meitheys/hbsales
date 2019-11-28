@@ -1,7 +1,6 @@
 package br.com.hbsis.fornecedor;
 
 import br.com.hbsis.categoria.Categoria;
-import br.com.hbsis.categoria.CategoriaDTO;
 
 import javax.persistence.*;
 import java.util.List;
@@ -40,8 +39,8 @@ public class Fornecedor {
         return id;
     }
 
-    public void setId() {
-        this.id = id;
+    public void setId(Long id) {
+        this.id = this.id;
     }
 
     public String getRazao() { return razao; }

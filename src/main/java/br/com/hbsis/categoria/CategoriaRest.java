@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
@@ -17,7 +18,7 @@ import java.io.PrintWriter;
 public class CategoriaRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaRest.class);
 
-    private final CategoriaService categoriaService;
+    private CategoriaService categoriaService;
 
     @Autowired
     public CategoriaRest(CategoriaService categoriaService) {
@@ -64,19 +65,26 @@ public class CategoriaRest {
         String arquivo = "categoria.csv";
         response.setContentType("text/csv");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\""+arquivo+"\"");
+                "attachment; filename=\"" + arquivo + "\"");
         PrintWriter escritor = response.getWriter();
         ICSVWriter csvWriter = new CSVWriterBuilder(escritor)
                 .withSeparator(';')
                 .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
                 .withLineEnd(CSVWriter.DEFAULT_LINE_END)
                 .build();
-        String headerCSV[] = {"id","id_fornecedor", "categoria"};
+        String headerCSV[] = {"id", "id_fornecedor", "categoria"};
         csvWriter.writeNext(headerCSV);
         for (Categoria linha : categoriaService.findAll()) {
-            csvWriter.writeNext(new String[] {linha.getId().toString(), linha.getNomeCategoria(), linha.getFornecedor().getId().toString()});
+            csvWriter.writeNext(new String[]{linha.getId().toString(), linha.getNomeCategoria(), linha.getFornecedor().getId().toString()});
         }
 
+        //Arquivo = parametro para o Postman passar o csv
+
+    }
+
+    @PostMapping("/importarcsv")
+    public void importCSV (@RequestParam("file") MultipartFile arquivo)throws Exception {
+        categoriaService.leitorTotal(arquivo);
     }
 
 }
