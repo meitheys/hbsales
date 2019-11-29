@@ -1,17 +1,12 @@
 package br.com.hbsis.categoria;
 
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 
 @RestController
 @RequestMapping("/categoria")
@@ -61,29 +56,13 @@ public class CategoriaRest {
     //GetMap para pegar http
 
     @GetMapping("/exportarcsv")
-    public void exportCSV(HttpServletResponse response) throws Exception {
-        String arquivo = "categoria.csv";
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + arquivo + "\"");
-        PrintWriter escritor = response.getWriter();
-        ICSVWriter csvWriter = new CSVWriterBuilder(escritor)
-                .withSeparator(';')
-                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(CSVWriter.DEFAULT_LINE_END)
-                .build();
-        String headerCSV[] = {"id", "id_fornecedor", "categoria"};
-        csvWriter.writeNext(headerCSV);
-        for (Categoria linha : categoriaService.findAll()) {
-            csvWriter.writeNext(new String[]{linha.getId().toString(), linha.getNomeCategoria(), linha.getFornecedor().getId().toString()});
-        }
-
-        //Arquivo = parametro para o Postman passar o csv
-
+    public void exportCSV(HttpServletResponse file) throws Exception {
+        categoriaService.findAll(file);
     }
 
+
     @PostMapping("/importarcsv")
-    public void importCSV (@RequestParam("file") MultipartFile arquivo)throws Exception {
+    public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
         categoriaService.leitorTotal(arquivo);
     }
 

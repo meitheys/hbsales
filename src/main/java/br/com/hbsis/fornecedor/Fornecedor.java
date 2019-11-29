@@ -11,7 +11,8 @@ public class Fornecedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "id")
+    private long idFornecedor;
     @Column(name = "razao", unique = true, nullable = false, length = 200)
     private String razao;
     @Column(name = "cnpj", nullable = false, length = 14)
@@ -27,23 +28,17 @@ public class Fornecedor {
     @Column(name = "email", unique = true, updatable = false, length = 100)
     private String email;
 
-    public List<Categoria> getCategorias() {
-        return categorias;
+    public long getIdFornecedor() {
+        return idFornecedor;
     }
 
-    public void setCategorias(List<Categoria> categorias) {
-        this.categorias = categorias;
+    public void setIdFornecedor(long idFornecedor) {
+        this.idFornecedor = idFornecedor;
     }
 
-    public Long getId() {
-        return id;
+    public String getRazao() {
+        return razao;
     }
-
-    public void setId(Long id) {
-        this.id = this.id;
-    }
-
-    public String getRazao() { return razao; }
 
     public void setRazao(String razao) {
         this.razao = razao;
@@ -55,6 +50,14 @@ public class Fornecedor {
 
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
+    }
+
+    public List<Categoria> getCategorias() {
+        return categorias;
+    }
+
+    public void setCategorias(List<Categoria> categorias) {
+        this.categorias = categorias;
     }
 
     public String getNome() {
@@ -92,14 +95,14 @@ public class Fornecedor {
     @Override
     public String toString() {
         return "Fornecedor{" +
-                "id=" + id +
+                "id=" + idFornecedor +
                 ", razao='" + razao + '\'' +
                 ", cnpj='" + cnpj + '\'' +
+                ", categorias=" + categorias +
                 ", nome='" + nome + '\'' +
                 ", endereco='" + endereco + '\'' +
                 ", telefone='" + telefone + '\'' +
                 ", email='" + email + '\'' +
                 '}';
-
     }
 }

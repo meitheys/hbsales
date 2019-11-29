@@ -1,9 +1,7 @@
 package br.com.hbsis.categoria;
 
-
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
-import br.com.hbsis.fornecedor.FornecedorRepository;
 import br.com.hbsis.fornecedor.FornecedorService;
 import com.microsoft.sqlserver.jdbc.StringUtils;
 import com.opencsv.*;
@@ -14,10 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,17 +22,12 @@ import java.util.Optional;
 public class CategoriaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
-    private final ICategoriaRepository iCategoriaRepository;
-    private final FornecedorRepository iFornecedorRepository;
+    private ICategoriaRepository iCategoriaRepository;
     private final FornecedorService fornecedorService;
-    private final FornecedorDTO fornecedorDTO;
-    private Object FornecedorDTO;
 
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorRepository iFornecedorRepository, FornecedorService fornecedorService, FornecedorDTO fornecedorDTO) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
         this.iCategoriaRepository = iCategoriaRepository;
-        this.iFornecedorRepository = iFornecedorRepository;
         this.fornecedorService = fornecedorService;
-        this.fornecedorDTO = fornecedorDTO;
     }
 
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
@@ -60,10 +51,9 @@ public class CategoriaService {
         if (categoriaDTO == null) {
             throw new IllegalArgumentException("!!Categoria Nula!!");
         }
-        if (categoriaDTO.getFornecedor() == null){
+        if (categoriaDTO.getFornecedor() == null) {
             System.out.println("!!Fornecedor está vazio!!");
-        }
-        else{
+        } else {
             System.out.println("Fornecedor: " + categoriaDTO.getFornecedor());
         }
         System.out.println(categoriaDTO.getNomeCategoria());
@@ -99,6 +89,7 @@ public class CategoriaService {
         }
         throw new IllegalArgumentException(String.format("ID não existe", id));
     }
+
     public void delete(Long id) {
         LOGGER.info("Executando delete para categoria, id: [{}]", id);
 
@@ -106,8 +97,6 @@ public class CategoriaService {
     }
 
     //Trabalhando com Excel ---------------------------------------------------------------------------
-
-    //findAll encontra as categorias nas List.
 
     public void findAll(HttpServletResponse resposta) throws Exception {
         String arquivo = "categoria.csv";
@@ -117,7 +106,7 @@ public class CategoriaService {
         PrintWriter escritor = resposta.getWriter();
 
         ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-        String tituloCSV[] = {"id_categoria", "nome_categoria", "id_fornecedor"};
+        String[] tituloCSV = {"id_categoria", "nome_categoria", "id_fornecedor"};
         icsvWriter.writeNext(tituloCSV);
 
         for (Categoria linhas : iCategoriaRepository.findAll()) {
@@ -130,49 +119,76 @@ public class CategoriaService {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
-
         CSVReader leitor = new CSVReaderBuilder(insercao).withSkipLines(1).build();
 
-            List<String[]> linhaS = leitor.readAll();
-            List<Categoria> resultado = new ArrayList<>();
+        List<String[]> linhaS = leitor.readAll();
+        List<Categoria> resultado = new ArrayList<>();
 
-            for(String[] linha : linhaS) {
+        for (String[] linha : linhaS) {
 
-                try {
+            try {
 
-                    //Quebrando o arquivo CSV em valores.
+                //Quebrando o arquivo CSV em valores.
 
-                    String[] dados = linha[0].replaceAll("\"", "").split(";");
+                String[] dados = linha[0].replaceAll("\"", "").split(";");
 
-                    Categoria categoria = new Categoria();
-                    Fornecedor fornecedor = new Fornecedor();
-                    FornecedorDTO = fornecedorService.findById(Long.parseLong(dados[1]));
+                Categoria categoria = new Categoria();
 
-                    //dados[x] = dado pego baseado na formatação csv
+                //dados[x] = dado pego baseado na formatação csv
 
-                    categoria.setId(Long.parseLong(dados[1]));
-                    categoria.setFornecedor(fornecedor);
-                    categoria.setNomeCategoria((dados[2]));
+                categoria.setCodigoCategoria(dados[0]);
+                categoria.setNomeCategoria((dados[2]));
+                Fornecedor fornecedor = fornecedorService.findIdFornecedor(Long.parseLong(dados[1]));
+                categoria.setFornecedor(fornecedor);
 
-                    fornecedor.setEmail(fornecedorDTO.getEmail());
-                    fornecedor.setTelefone(fornecedorDTO.getTelefone());
-                    fornecedor.setEndereco(fornecedorDTO.getEndereco());
-                    fornecedor.setNome(fornecedorDTO.getNome());
-                    fornecedor.setCnpj(fornecedorDTO.getCnpj());
-                    fornecedor.setRazao(fornecedorDTO.getRazao());
+                resultado.add(categoria);
+                System.out.println(resultado);
 
+            } catch (Exception e) {
+                e.printStackTrace();
 
-
-                    resultado.add(categoria);
-                    System.out.println(resultado);
-
-                }catch (Exception e){
-                    e.printStackTrace();
-
-                }
             }
+        }
         return iCategoriaRepository.saveAll(resultado);
 
     }
+
+    public List<Categoria> readAll(MultipartFile file) throws Exception {
+        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
+        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
+        List<String[]> linhas = csvReader.readAll();
+        List<Categoria> resultado = new ArrayList<>();
+
+        for (String[] linha : linhas) {
+            try {
+                String[] dados = linha[1].replaceAll("\"", "").split(";");
+
+                Categoria categoria = new Categoria();
+                Fornecedor fornecedor = new Fornecedor();
+                FornecedorDTO fornecedorDTO = new FornecedorDTO();
+
+
+                categoria.setId(Long.parseLong(dados[0]));
+                categoria.setNomeCategoria((dados[2]));
+                fornecedorDTO = fornecedorService.findById(Long.parseLong(dados[1]));
+
+                fornecedor.setIdFornecedor(fornecedorDTO.getId());
+                fornecedor.setCnpj(fornecedorDTO.getCnpj());
+                fornecedor.setRazao(fornecedorDTO.getRazao());
+                fornecedor.setNome(fornecedorDTO.getNome());
+                fornecedor.setEndereco(fornecedorDTO.getEndereco());
+                fornecedor.setTelefone(fornecedorDTO.getTelefone());
+                fornecedor.setEmail(fornecedorDTO.getEmail());
+
+                categoria.setFornecedor(fornecedor);
+
+                resultado.add(categoria);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return iCategoriaRepository.saveAll(resultado);
+    }
+
 
 }

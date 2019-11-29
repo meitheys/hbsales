@@ -20,7 +20,7 @@ public class CategoriaDTO {
         return new CategoriaDTO(
                 categoria.getId(),
                 categoria.getNomeCategoria(),
-                categoria.getFornecedor().getId()
+                categoria.getFornecedor().getIdFornecedor()
         );
     }
 

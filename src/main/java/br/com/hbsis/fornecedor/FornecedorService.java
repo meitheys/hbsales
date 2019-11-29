@@ -63,7 +63,7 @@ public class FornecedorService {
             return fornecedorOptional1.get();
         }
 
-        throw new IllegalArgumentException(String.format("Fornecedor não existe:", id));
+        throw new IllegalArgumentException(String.format("Fornecedor não existe: %s", id));
     }
 
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
