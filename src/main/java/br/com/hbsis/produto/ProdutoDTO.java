@@ -1,27 +1,41 @@
 package br.com.hbsis.produto;
 
-import javax.persistence.*;
 import java.util.Date;
 
-@Entity
-@Table
-public class Produto {
-    @Id
-    @GeneratedValue
-    @Column(name = "codigo_produto", unique = true, nullable = false)
+public class ProdutoDTO {
     private long codigo_produto;
-    @Column(name = "nome_produto", unique = false, nullable = false, length = 100)
     private String nome_produto;
-    @Column(name = "preco_produto", unique = false, nullable = false)
     private double preco_produto;
-    @Column(name = "codigo_linha", unique = false, nullable = false, length = 100)
     private long codigo_linha;
-    @Column(name = "unidades", unique = false, nullable = false, length = 100)
-    private long unidade;
-    @Column(name = "peso", unique = false, nullable = false, length = 100)
+    private long unidades;
     private double peso;
-    @Column(name = "validade", unique = false, nullable = false, length = 100)
     private Date validade;
+
+    public ProdutoDTO() {
+
+    }
+
+    public ProdutoDTO(long codigo_produto, String nome_produto, double preco_produto, long codigo_linha, long unidades, double peso, Date validade) {
+        this.codigo_produto = codigo_produto;
+        this.nome_produto = nome_produto;
+        this.preco_produto = preco_produto;
+        this.codigo_linha = codigo_linha;
+        this.unidades = unidades;
+        this.peso = peso;
+        this.validade = validade;
+    }
+
+    public static ProdutoDTO of(Produto produto) {
+        return new ProdutoDTO(
+                produto.getCodigo_produto(),
+                produto.getNome_produto(),
+                produto.getPreco_produto(),
+                produto.getCodigo_linha(),
+                produto.getUnidade(),
+                produto.getPeso(),
+                produto.getValidade()
+                );
+    }
 
     public long getCodigo_produto() {
         return codigo_produto;
@@ -55,12 +69,12 @@ public class Produto {
         this.codigo_linha = codigo_linha;
     }
 
-    public long getUnidade() {
-        return unidade;
+    public long getUnidades() {
+        return unidades;
     }
 
-    public void setUnidade(long unidade) {
-        this.unidade = unidade;
+    public void setUnidades(long unidades) {
+        this.unidades = unidades;
     }
 
     public double getPeso() {
@@ -81,12 +95,12 @@ public class Produto {
 
     @Override
     public String toString() {
-        return "Produto{" +
+        return "ProdutoDTO{" +
                 "codigo_produto=" + codigo_produto +
                 ", nome_produto='" + nome_produto + '\'' +
                 ", preco_produto=" + preco_produto +
                 ", codigo_linha=" + codigo_linha +
-                ", unidade=" + unidade +
+                ", unidades=" + unidades +
                 ", peso=" + peso +
                 ", validade='" + validade + '\'' +
                 '}';

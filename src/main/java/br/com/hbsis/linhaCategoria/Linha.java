@@ -3,8 +3,8 @@ package br.com.hbsis.linhaCategoria;
 import javax.persistence.*;
 
 @Entity
-    @Table(name = "seg_linha")
-        public class Linha {
+@Table(name = "seg_linha")
+public class Linha {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_linha")
@@ -46,5 +46,8 @@ import javax.persistence.*;
                 ", nome_linha='" + nome_linha + '\'' +
                 '}';
     }
+
+
 }
+
 

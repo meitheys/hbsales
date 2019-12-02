@@ -124,15 +124,15 @@ public class LinhaService {
 
                 String[] dados = linha[0].replaceAll("\"", "").split(";");
 
-                Linha linha = new Linha();
+                Linha linhaclasse = new Linha();
 
                 //dados[x] = dado pego baseado na formatação csv
 
-                linha.setCodigo_linha(dados[0]);
-                linha.setCategoria_linha((dados[1]));
-                linha.setNome_linha((dados[2]));
+                linhaclasse.setCodigo_linha(Long.parseLong(dados[0]));
+                linhaclasse.setCategoria_linha(Long.parseLong(dados[1]));
+                linhaclasse.setNome_linha((dados[2]));
 
-                resultado.add(linha);
+                resultado.add(linhaclasse);
                 System.out.println(resultado);
 
             } catch (Exception e) {
