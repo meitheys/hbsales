@@ -78,7 +78,7 @@ public class CategoriaService {
         if (categoriaExistenteOptional.isPresent()) {
             Categoria categoriaExistente = categoriaExistenteOptional.get();
 
-            LOGGER.info("Atualizando categoria... id: [{}]", categoriaExistente.getId());
+            LOGGER.info("Atualizando categoria... id: [{}]", categoriaExistente.getCodigoCategoria());
             LOGGER.debug("Payload: {}", categoriaDTO);
             LOGGER.debug("Categoria já existe: {}", categoriaExistente);
 
@@ -110,7 +110,7 @@ public class CategoriaService {
         icsvWriter.writeNext(tituloCSV);
 
         for (Categoria linhas : iCategoriaRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{linhas.getId().toString(), linhas.getNomeCategoria(), linhas.getFornecedor().toString()});
+            icsvWriter.writeNext(new String[]{linhas.getCodigoCategoria().toString(), linhas.getNomeCategoria(), linhas.getFornecedor().toString()});
         }
 
     }
@@ -168,7 +168,7 @@ public class CategoriaService {
                 FornecedorDTO fornecedorDTO = new FornecedorDTO();
 
 
-                categoria.setId(Long.parseLong(dados[0]));
+                categoria.setCodigoCategoria((dados[0]));
                 categoria.setNomeCategoria((dados[2]));
                 fornecedorDTO = fornecedorService.findById(Long.parseLong(dados[1]));
 

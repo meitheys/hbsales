@@ -1,7 +1,5 @@
 package br.com.hbsis.categoria;
 
-
-
 import br.com.hbsis.fornecedor.Fornecedor;
 import com.opencsv.bean.CsvBindByName;
 
@@ -14,7 +12,8 @@ public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @CsvBindByName(column = "id")
-    private Long id;
+    @Column(name = "codigo_categoria",  length = 100)
+    private String codigoCategoria;
     @ManyToOne
     @JoinColumn(name = "id_fornecedor", referencedColumnName = "id")
 //    @CsvBindByName(column = "id_fornecedor")
@@ -22,9 +21,6 @@ public class Categoria {
     @Column(name = "categoria", unique = false, nullable = false, length = 100)
 //    @CsvBindByName(column = "categoria")
     private String nomeCategoria;
-    @Column(name = "codigo_categoria", unique = true, nullable = false, length = 100)
-    private String codigoCategoria;
-
 
     public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
@@ -32,14 +28,6 @@ public class Categoria {
 
     public Fornecedor getFornecedor() {
         return fornecedor;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNomeCategoria() {
@@ -61,9 +49,9 @@ public class Categoria {
     @Override
     public String toString() {
         return "Categoria{" +
-                "id=" + id +
-                ", id_fornecedor" + fornecedor + '\'' +
-                ", categoria='" + nomeCategoria + '\'' +
+                "codigoCategoria='" + codigoCategoria + '\'' +
+                ", fornecedor=" + fornecedor +
+                ", nomeCategoria='" + nomeCategoria + '\'' +
                 '}';
     }
 }
