@@ -1,27 +1,28 @@
 package br.com.hbsis.produto;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
-@Table
+@Table(name = "seg_produtos")
 public class Produto {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_produto", unique = true, nullable = false)
     private long codigo_produto;
     @Column(name = "nome_produto", unique = false, nullable = false, length = 100)
     private String nome_produto;
-    @Column(name = "preco_produto", unique = false, nullable = false)
+    @Column(name = "preco_produto",  unique = false, nullable = false)
     private double preco_produto;
-    @Column(name = "codigo_linha", unique = false, nullable = false, length = 100)
-    private long codigo_linha;
+    @Column(name = "linha", nullable = false, length = 100)
+    private long linha;
     @Column(name = "unidades", unique = false, nullable = false, length = 100)
     private long unidade;
     @Column(name = "peso", unique = false, nullable = false, length = 100)
     private double peso;
     @Column(name = "validade", unique = false, nullable = false, length = 100)
-    private Date validade;
+    private LocalDate validade;
 
     public long getCodigo_produto() {
         return codigo_produto;
@@ -47,12 +48,12 @@ public class Produto {
         this.preco_produto = preco_produto;
     }
 
-    public long getCodigo_linha() {
-        return codigo_linha;
+    public long getLinha() {
+        return linha;
     }
 
-    public void setCodigo_linha(long codigo_linha) {
-        this.codigo_linha = codigo_linha;
+    public void setLinha(long linha) {
+        this.linha = linha;
     }
 
     public long getUnidade() {
@@ -71,11 +72,11 @@ public class Produto {
         this.peso = peso;
     }
 
-    public Date getValidade() {
+    public LocalDate getValidade() {
         return validade;
     }
 
-    public void setValidade(Date validade) {
+    public void setValidade(LocalDate validade) {
         this.validade = validade;
     }
 
@@ -85,7 +86,7 @@ public class Produto {
                 "codigo_produto=" + codigo_produto +
                 ", nome_produto='" + nome_produto + '\'' +
                 ", preco_produto=" + preco_produto +
-                ", codigo_linha=" + codigo_linha +
+                ", linha=" + linha +
                 ", unidade=" + unidade +
                 ", peso=" + peso +
                 ", validade='" + validade + '\'' +

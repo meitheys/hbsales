@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FornecedorRepository extends JpaRepository<Fornecedor, Long> {
+    @Override
+    boolean existsById(Long idFornecedor);
 }

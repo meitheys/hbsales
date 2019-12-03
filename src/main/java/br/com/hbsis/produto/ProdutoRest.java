@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/produto")
@@ -17,6 +20,13 @@ public class ProdutoRest {
     public ProdutoRest(ProdutoService produtoService) {
         this.produtoService = produtoService;
     }
+
+    @PutMapping("/importarPF/{codigo_produto}")
+    public void acharFornecedorProduto(@PathVariable("codigo_produto") Long codigo_produto, @RequestParam("file") MultipartFile multipartFile) throws Exception {
+        LOGGER.info("Adicionando produto a fornecedor de ID... [{}]", codigo_produto);
+        produtoService.AcharFornecedorProduto(codigo_produto, multipartFile);
+    }
+
 
     @PostMapping
     public ProdutoDTO save(@RequestBody ProdutoDTO produtoDTO) {
@@ -48,5 +58,19 @@ public class ProdutoRest {
 
         this.produtoService.delete(codigo_produto);
     }
+
+    //Excel
+
+    @GetMapping("/exportarcsv")
+    public void exportCSV(HttpServletResponse file) throws Exception {
+        produtoService.findAll(file);
+    }
+
+    @PostMapping("/importarcsv")
+    public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
+        produtoService.leitorTotal(arquivo);
+    }
+
+
 
 }

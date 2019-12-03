@@ -1,72 +1,76 @@
 package br.com.hbsis.produto;
 
+import org.apache.tomcat.jni.Local;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 public class ProdutoDTO {
-    private long codigo_produto;
-    private String nome_produto;
-    private double preco_produto;
-    private long codigo_linha;
+    private long codigoProduto;
+    private String nomeProduto;
+    private double precoProduto;
+    private long linha;
     private long unidades;
     private double peso;
-    private Date validade;
+    private LocalDate validade;
 
     public ProdutoDTO() {
 
     }
 
-    public ProdutoDTO(long codigo_produto, String nome_produto, double preco_produto, long codigo_linha, long unidades, double peso, Date validade) {
-        this.codigo_produto = codigo_produto;
-        this.nome_produto = nome_produto;
-        this.preco_produto = preco_produto;
-        this.codigo_linha = codigo_linha;
+    public ProdutoDTO(long codigoProduto, String nomeProduto, double precoProduto, long linha, long unidades, double peso, LocalDate validade) {
+        this.codigoProduto = codigoProduto;
+        this.nomeProduto = nomeProduto;
+        this.precoProduto = precoProduto;
+        this.linha = linha;
         this.unidades = unidades;
         this.peso = peso;
         this.validade = validade;
     }
+
 
     public static ProdutoDTO of(Produto produto) {
         return new ProdutoDTO(
                 produto.getCodigo_produto(),
                 produto.getNome_produto(),
                 produto.getPreco_produto(),
-                produto.getCodigo_linha(),
+                produto.getLinha(),
                 produto.getUnidade(),
                 produto.getPeso(),
                 produto.getValidade()
                 );
     }
 
-    public long getCodigo_produto() {
-        return codigo_produto;
+    public long getCodigoProduto() {
+        return codigoProduto;
     }
 
-    public void setCodigo_produto(long codigo_produto) {
-        this.codigo_produto = codigo_produto;
+    public void setCodigoProduto(long codigoProduto) {
+        this.codigoProduto = codigoProduto;
     }
 
-    public String getNome_produto() {
-        return nome_produto;
+    public String getNomeProduto() {
+        return nomeProduto;
     }
 
-    public void setNome_produto(String nome_produto) {
-        this.nome_produto = nome_produto;
+    public void setNomeProduto(String nomeProduto) {
+        this.nomeProduto = nomeProduto;
     }
 
-    public double getPreco_produto() {
-        return preco_produto;
+    public double getPrecoProduto() {
+        return precoProduto;
     }
 
-    public void setPreco_produto(double preco_produto) {
-        this.preco_produto = preco_produto;
+    public void setPrecoProduto(double precoProduto) {
+        this.precoProduto = precoProduto;
     }
 
-    public long getCodigo_linha() {
-        return codigo_linha;
+    public long getLinha() {
+        return linha;
     }
 
-    public void setCodigo_linha(long codigo_linha) {
-        this.codigo_linha = codigo_linha;
+    public void setLinha(long linha) {
+        this.linha = linha;
     }
 
     public long getUnidades() {
@@ -85,24 +89,24 @@ public class ProdutoDTO {
         this.peso = peso;
     }
 
-    public Date getValidade() {
+    public LocalDate getValidade() {
         return validade;
     }
 
-    public void setValidade(Date validade) {
+    public void setValidade(LocalDate validade) {
         this.validade = validade;
     }
 
     @Override
     public String toString() {
         return "ProdutoDTO{" +
-                "codigo_produto=" + codigo_produto +
-                ", nome_produto='" + nome_produto + '\'' +
-                ", preco_produto=" + preco_produto +
-                ", codigo_linha=" + codigo_linha +
+                "codigoProduto=" + codigoProduto +
+                ", nomeProduto='" + nomeProduto + '\'' +
+                ", precoProduto=" + precoProduto +
+                ", linha=" + linha +
                 ", unidades=" + unidades +
                 ", peso=" + peso +
-                ", validade='" + validade + '\'' +
+                ", validade=" + validade +
                 '}';
     }
 }
