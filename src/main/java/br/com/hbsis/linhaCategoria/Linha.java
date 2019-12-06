@@ -10,7 +10,7 @@ public class Linha {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_linha")
     private Long codigo_linha;
-    @Column(name = "categoria_linha", unique = true, nullable = false, length = 200)
+    @Column(name = "categoria_linha", unique = true, nullable = false)
     private Long categoria_linha;
     @Column(name = "nome_linha", unique = true, nullable = false, length = 200)
     private String nome_linha;

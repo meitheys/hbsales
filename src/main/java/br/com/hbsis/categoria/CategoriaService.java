@@ -3,8 +3,9 @@ package br.com.hbsis.categoria;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
-import com.microsoft.sqlserver.jdbc.StringUtils;
+
 import com.opencsv.*;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -33,22 +34,46 @@ public class CategoriaService {
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
         this.validate(categoriaDTO);
 
+        Fornecedor fornecedorDTO = fornecedorService.findIdFornecedor(categoriaDTO.getFornecedor());
+
         LOGGER.info("Salvando categoria...");
         LOGGER.debug("Categoria: {}", categoriaDTO);
 
         Categoria categoria = new Categoria();
 
-        String digitos = Long.parseLong(categoria.getFornecedor().getCnpj());
-        String ultimosQuatroNumeros = digitos.substring(digitos.length()-4);
+        String codigo = categoriaDTO.getCodigo_categoria();
+        String cnpjota = fornecedorDTO.getCnpj();
 
-        categoria.setCodigoCategoria("CAT" + ultimosQuatroNumeros + "");
+        String codigoProcessed = codigoValidar(codigo);
+        String cnpjProcessed = quatroCNPJ(cnpjota);
+
+        String fim = "CAT" + cnpjProcessed + codigoProcessed;
+
+        categoria.setCodigoCategoria(fim);
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findIdFornecedor(categoriaDTO.getFornecedor()));
+
         categoria = this.iCategoriaRepository.save(categoria);
 
         return CategoriaDTO.of(categoria);
 
     }
+
+    public String codigoValidar (String codigo){
+        String codigoProcessador = StringUtils.leftPad(codigo, 3, "0");
+
+        return codigoProcessador;
+
+    }
+
+
+    //4 ULTIMOS NUMEROS
+    public String quatroCNPJ(String cnpj){
+        String ultimosDigitos = cnpj.substring(cnpj.length() - 4);
+
+        return ultimosDigitos;
+    }
+
 
     private void validate(CategoriaDTO categoriaDTO) {
         LOGGER.info("Validando Categoria");
@@ -61,10 +86,12 @@ public class CategoriaService {
         } else {
             System.out.println("Fornecedor: " + categoriaDTO.getFornecedor());
         }
+        System.out.println(categoriaDTO.getCodigo_categoria());
         System.out.println(categoriaDTO.getNomeCategoria());
         if (StringUtils.isEmpty(categoriaDTO.getNomeCategoria())) {
             throw new IllegalArgumentException("Categoria não deve ser vazio!!");
         }
+
     }
 
     public CategoriaDTO findById(Long id) {
@@ -100,6 +127,14 @@ public class CategoriaService {
 
         this.iCategoriaRepository.deleteById(id);
     }
+
+    public String formatarCnpj(String cnpj) {
+        Fornecedor fornecedor = new Fornecedor();
+        String mask = fornecedor.getCnpj();
+        mask = (cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12, 14));
+        return mask;
+    }
+
 
     //Trabalhando com Excel ---------------------------------------------------------------------------
 

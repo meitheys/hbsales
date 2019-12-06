@@ -16,7 +16,7 @@ public class Fornecedor {
     @Column(name = "razao", unique = true, nullable = false, length = 100)
     private String razao;
     @Column(name = "cnpj", nullable = false, length = 14)
-    private long cnpj;
+    private String cnpj;
     @OneToMany(mappedBy = "fornecedor", targetEntity = Categoria.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Categoria> categorias;
     @Column(name = "nome", unique = true, updatable = false, length = 100)
@@ -44,11 +44,11 @@ public class Fornecedor {
         this.razao = razao;
     }
 
-    public long getCnpj() {
+    public String getCnpj() {
         return cnpj;
     }
 
-    public void setCnpj(long cnpj) {
+    public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
     }
 

@@ -11,16 +11,23 @@ public class Categoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @CsvBindByName(column = "id")
-    @Column(name = "codigo_categoria",  length = 100)
+    @Column(name = "id_categoria")
+    private long idCategoria;
+    @Column(name = "codigo_categoria",  length = 10)
     private String codigoCategoria;
     @ManyToOne
     @JoinColumn(name = "id_fornecedor", referencedColumnName = "id")
-//    @CsvBindByName(column = "id_fornecedor")
     private Fornecedor fornecedor;
     @Column(name = "categoria", unique = false, nullable = false, length = 100)
-//    @CsvBindByName(column = "categoria")
     private String nomeCategoria;
+
+    public long getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(long idCategoria) {
+        this.idCategoria = idCategoria;
+    }
 
     public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
@@ -49,7 +56,8 @@ public class Categoria {
     @Override
     public String toString() {
         return "Categoria{" +
-                "codigoCategoria='" + codigoCategoria + '\'' +
+                "idCategoria=" + idCategoria +
+                ", codigoCategoria='" + codigoCategoria + '\'' +
                 ", fornecedor=" + fornecedor +
                 ", nomeCategoria='" + nomeCategoria + '\'' +
                 '}';

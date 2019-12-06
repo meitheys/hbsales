@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 @Service
 public class FornecedorService {
@@ -26,6 +25,8 @@ public class FornecedorService {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setRazao(fornecedorDTO.getRazao());
         fornecedor.setCnpj(fornecedorDTO.getCnpj());
+
+
         fornecedor.setNome(fornecedorDTO.getNome());
         fornecedor.setEndereco(fornecedorDTO.getEndereco());
         fornecedor.setTelefone(fornecedorDTO.getTelefone());
