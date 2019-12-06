@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 @Service
 public class FornecedorService {
@@ -42,7 +43,50 @@ public class FornecedorService {
             throw new IllegalArgumentException("Fornecedor não deve ser nulo");
         }
 
-    }
+        //Validação cnpj, se tem 14 caracteres e se são números.
+
+        boolean valida = false;
+        String forne = String.valueOf(fornecedorDTO.getCnpj());
+        String telefoneN = fornecedorDTO.getTelefone();
+        for(int i = 0; i < forne.length(); ++i) {
+            char ch = forne.charAt(i);
+            if(!(ch >= '0' && ch <= '9')){
+                valida = true;
+            }
+
+        }
+
+        if(valida == true){
+            throw new IllegalArgumentException("Caracteres não permitidos.");
+        }
+
+        if(forne.length() != 14){
+            long valor = forne.length();
+            throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 14! Você está colocando %s", valor));
+        }
+
+        //Validação Telefone, se tem 13 caracteres e se são números.
+
+        boolean validaCel = false;
+        for(int i = 0; i < telefoneN.length(); ++i) {
+            char ch = telefoneN.charAt(i);
+            if(!(ch >= '0' && ch <= '9')){
+                validaCel = true;
+            }
+        }
+
+        if (validaCel == true){
+            throw new IllegalArgumentException("Caracteres não permitidos.");
+        }
+
+        if(telefoneN.length() != 13){
+            long valorT = telefoneN.length();
+            throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 13! Você está colocando %s", valorT));
+        }
+
+        }
+
+
 
 
     public FornecedorDTO findById(Long id) {

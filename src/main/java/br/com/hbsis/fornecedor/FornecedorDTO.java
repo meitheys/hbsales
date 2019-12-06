@@ -3,7 +3,7 @@ package br.com.hbsis.fornecedor;
 public class FornecedorDTO {
     private Long id;
     private String razao;
-    private String cnpj;
+    private long cnpj;
     private String nome;
     private String endereco;
     private String telefone;
@@ -12,7 +12,7 @@ public class FornecedorDTO {
     public FornecedorDTO() {
     }
 
-    public FornecedorDTO(Long id, String razao, String cnpj, String nome, String endereco, String telefone, String email){
+    public FornecedorDTO(Long id, String razao, long cnpj, String nome, String endereco, String telefone, String email){
         this.id = id;
         this.razao = razao;
         this.cnpj = cnpj;
@@ -53,11 +53,11 @@ public class FornecedorDTO {
         this.razao = razao;
     }
 
-    public String getCnpj() {
+    public long getCnpj() {
         return cnpj;
     }
 
-    public void setCnpj(String cnpj) {
+    public void setCnpj(long cnpj) {
         this.cnpj = cnpj;
     }
 

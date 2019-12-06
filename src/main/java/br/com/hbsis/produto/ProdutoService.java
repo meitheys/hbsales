@@ -167,10 +167,11 @@ public class ProdutoService {
         for (Produto linhas : iProdutoRepository.findAll()) {
             icsvWriter.writeNext(new String[]{String.valueOf(linhas.getCodigo_produto()), linhas.getNome_produto(), String.valueOf(linhas.getPreco_produto()), String.valueOf(linhas.getLinha()), String.valueOf(linhas.getUnidade()), String.valueOf(linhas.getPeso()), String.valueOf(linhas.getValidade())});
         }
-
     }
 
-    public void acharFornecedorProduto(Long codigo_produto, MultipartFile multipartFile) throws Exception {
+    //Atividade 11 ______________________________________________//________________________________________________
+
+    public void acharFornecedorProduto(Long idFornecedor, MultipartFile multipartFile) throws Exception {
 
         InputStreamReader inputStreamReader = new InputStreamReader(multipartFile.getInputStream());
 
@@ -178,21 +179,35 @@ public class ProdutoService {
 
         List<String[]> totalLido = csvReader.readAll();
 
-        for(String[] linhas : totalLido) {
-            try{
-                String[] dado = linhas[0].replaceAll("\"c","").split(";");
+        for (String[] linhas : totalLido) {
+            try {
+                String[] dado = linhas[0].replaceAll("\"c", "").split(";");
 
                 Produto produto = new Produto();
-                if(fornecedorRepository.existsById(codigo_produto)) {
+                if (fornecedorRepository.existsById(idFornecedor)) {
+                    produto.setValidade((LocalDate.parse(dado[6])));
+                    produto.setUnidade(Long.parseLong(dado[4]));
+                    produto.setPreco_produto((Double.parseDouble(dado[2])));
+                    produto.setPeso((Double.parseDouble(dado[5])));
+                    produto.setNome_produto((dado[1]));
+                    produto.setLinha((Long.parseLong(dado[3])));
+                    produto.setCodigo_produto((Long.parseLong(dado[0])));
+
+                    if (iProdutoRepository.existsById(produto.getCodigo_produto())) {
+                        produto.setCodigo_produto(iProdutoRepository.findById(produto.getCodigo_produto()).get().getCodigo_produto());
+                        update(ProdutoDTO.of(produto), produto.getCodigo_produto());
+                    /* IMPLEMENTAR DEPOIS  ------------------} else if (produto = "2323") {
+                        iProdutoRepository.save(produto);------------------*/
+                    } else {
+                        LOGGER.info("Produto {} pertence a outro fornecedor", produto.getCodigo_produto());
+                    }
 
                 }
 
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }
-
-
     }
 
 
@@ -236,8 +251,5 @@ public class ProdutoService {
         return iProdutoRepository.saveAll(resultado);
 
     }
-
-
-
 
 }

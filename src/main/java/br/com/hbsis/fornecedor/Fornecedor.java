@@ -13,19 +13,19 @@ public class Fornecedor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long idFornecedor;
-    @Column(name = "razao", unique = true, nullable = false, length = 200)
+    @Column(name = "razao", unique = true, nullable = false, length = 100)
     private String razao;
     @Column(name = "cnpj", nullable = false, length = 14)
-    private String cnpj;
+    private long cnpj;
     @OneToMany(mappedBy = "fornecedor", targetEntity = Categoria.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Categoria> categorias;
-    @Column(name = "nome", unique = true, updatable = false, length = 200)
+    @Column(name = "nome", unique = true, updatable = false, length = 100)
     private String nome;
-    @Column(name = "endereco", nullable = false, length = 150)
+    @Column(name = "endereco", nullable = false, length = 100)
     private String endereco;
-    @Column(name = "telefone", nullable = false, length = 14)
+    @Column(name = "telefone", nullable = false, length = 12)
     private String telefone;
-    @Column(name = "email", unique = true, updatable = false, length = 100)
+    @Column(name = "email", unique = true, updatable = false, length = 50)
     private String email;
 
     public long getIdFornecedor() {
@@ -44,11 +44,11 @@ public class Fornecedor {
         this.razao = razao;
     }
 
-    public String getCnpj() {
+    public long getCnpj() {
         return cnpj;
     }
 
-    public void setCnpj(String cnpj) {
+    public void setCnpj(long cnpj) {
         this.cnpj = cnpj;
     }
 

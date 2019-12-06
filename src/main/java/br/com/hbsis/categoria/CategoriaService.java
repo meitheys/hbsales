@@ -37,6 +37,11 @@ public class CategoriaService {
         LOGGER.debug("Categoria: {}", categoriaDTO);
 
         Categoria categoria = new Categoria();
+
+        String digitos = Long.parseLong(categoria.getFornecedor().getCnpj());
+        String ultimosQuatroNumeros = digitos.substring(digitos.length()-4);
+
+        categoria.setCodigoCategoria("CAT" + ultimosQuatroNumeros + "");
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findIdFornecedor(categoriaDTO.getFornecedor()));
         categoria = this.iCategoriaRepository.save(categoria);

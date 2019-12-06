@@ -24,7 +24,7 @@ public class ProdutoRest {
     @PutMapping("/importarPF/{codigo_produto}")
     public void acharFornecedorProduto(@PathVariable("codigo_produto") Long codigo_produto, @RequestParam("file") MultipartFile multipartFile) throws Exception {
         LOGGER.info("Adicionando produto a fornecedor de ID... [{}]", codigo_produto);
-        produtoService.AcharFornecedorProduto(codigo_produto, multipartFile);
+        produtoService.acharFornecedorProduto(codigo_produto, multipartFile);
     }
 
 
