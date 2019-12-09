@@ -1,7 +1,6 @@
 package br.com.hbsis.categoria;
 
 import br.com.hbsis.fornecedor.Fornecedor;
-import com.opencsv.bean.CsvBindByName;
 
 import javax.persistence.*;
 

@@ -67,6 +67,18 @@ public class CategoriaService {
     }
 
 
+    public String desformatando(String cnpj) {
+
+        String desformatando =   cnpj.charAt(0)+""+cnpj.charAt(1)+
+                cnpj.charAt(3)+cnpj.charAt(4)+cnpj.charAt(5)+
+                cnpj.charAt(7)+cnpj.charAt(8)+cnpj.charAt(9)+
+                cnpj.charAt(11)+cnpj.charAt(12)+cnpj.charAt(13)+cnpj.charAt(14)+
+                cnpj.charAt(16)+cnpj.charAt(17);
+
+        return desformatando;
+
+    }
+
     //4 ULTIMOS NUMEROS
     public String quatroCNPJ(String cnpj){
         String ultimosDigitos = cnpj.substring(cnpj.length() - 4);
@@ -94,14 +106,22 @@ public class CategoriaService {
 
     }
 
-    public CategoriaDTO findById(Long id) {
+    public Categoria findByIdString(Long id) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
 
         if (categoriaOptional.isPresent()) {
-            return CategoriaDTO.of(categoriaOptional.get());
+            return categoriaOptional.get();
         }
 
         throw new IllegalArgumentException(String.format("ID não existe", id));
+    }
+    public  Categoria existsByCategoria_linha (String categoria_linha) {
+        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(categoria_linha);
+
+        if (categoriaOptional.isPresent()) {
+            return categoriaOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("categoria_linha não existe", categoria_linha));
     }
 
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
@@ -146,11 +166,15 @@ public class CategoriaService {
         PrintWriter escritor = resposta.getWriter();
 
         ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-        String[] tituloCSV = {"id_categoria", "nome_categoria", "id_fornecedor"};
+        String[] tituloCSV = {"codigo_categoria","nome_categoria", "razao", "cnpj"};
         icsvWriter.writeNext(tituloCSV);
 
         for (Categoria linhas : iCategoriaRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{linhas.getCodigoCategoria().toString(), linhas.getNomeCategoria(), linhas.getFornecedor().toString()});
+            icsvWriter.writeNext(new String[]{
+                    linhas.getCodigoCategoria(),
+                    linhas.getNomeCategoria(),
+                    linhas.getFornecedor().getRazao(),
+                    formatarCnpj(linhas.getFornecedor().getCnpj())});
         }
 
     }
@@ -231,4 +255,13 @@ public class CategoriaService {
     }
 
 
+
+    public Categoria converter(CategoriaDTO categoriaDTO) {
+
+        Categoria codigo_categoria = new Categoria();
+
+        codigo_categoria.setCodigoCategoria(categoriaDTO.getCodigo_categoria());
+
+        return codigo_categoria;
+    }
 }

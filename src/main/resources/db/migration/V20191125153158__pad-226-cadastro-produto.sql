@@ -6,7 +6,7 @@ create table seg_categoria
                 categoria           VARCHAR         (150)           NOT NULL
 );
 
-create unique index ix_seg_categoria_02 on seg_categoria (categoria asc);
+
 
 
 

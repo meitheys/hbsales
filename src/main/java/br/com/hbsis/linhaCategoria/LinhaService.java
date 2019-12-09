@@ -1,7 +1,9 @@
 package br.com.hbsis.linhaCategoria;
 
 import br.com.hbsis.categoria.CategoriaService;
+import br.com.hbsis.categoria.ICategoriaRepository;
 import com.opencsv.*;
+import freemarker.template.utility.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -21,10 +23,12 @@ public class LinhaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhaService.class);
     private ILinhaRepository iLinhaRepository;
     private CategoriaService categoriaService;
+    private ICategoriaRepository iCategoriaRepository;
 
-    public LinhaService(ILinhaRepository iLinhaRepository, CategoriaService categoriaService) {
+    public LinhaService(ILinhaRepository iLinhaRepository, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
         this.iLinhaRepository = iLinhaRepository;
         this.categoriaService = categoriaService;
+        this.iCategoriaRepository = iCategoriaRepository;
     }
 
     public LinhaDTO save(LinhaDTO linhaDTO) {
@@ -34,9 +38,10 @@ public class LinhaService {
         LOGGER.debug("Linha: {}", linhaDTO);
 
         Linha linha = new Linha();
-        linha.setCodigo_linha(linhaDTO.getCodigo_linha());
-        linha.setCategoria_linha(linhaDTO.getCategoria_linha());
-        linha.setNome_linha(linhaDTO.getNome_linha());
+        linha.setNomeLinha(linhaDTO.getNomeLinha());
+        linha.setCategoriaLinha(categoriaService.existsByCategoria_linha(linhaDTO.getCategoriaLinha()));
+        linha.setCodigoLinha(zeroAEsquerda(linhaDTO.getCodigoLinha().toUpperCase()));
+
         linha = this.iLinhaRepository.save(linha);
 
         return linhaDTO.of(linha);
@@ -68,12 +73,12 @@ public class LinhaService {
         if (linhaSecundariaExiste.isPresent()) {
             Linha linhaExistente = linhaSecundariaExiste.get();
 
-            LOGGER.info("Atualizando br.com.hbsis.fornecedor... id: [{}]", linhaDTO.getCodigo_linha());
+            LOGGER.info("Atualizando br.com.hbsis.fornecedor... id: [{}]", linhaDTO.getCodigoLinha());
             LOGGER.debug("Payload: {}", linhaDTO);
             LOGGER.debug("Usuario Existente: {}", linhaSecundariaExiste);
 
-            linhaExistente.setNome_linha(linhaDTO.getNome_linha());
-            linhaExistente.setCategoria_linha(linhaDTO.getCategoria_linha());
+            linhaExistente.setNomeLinha(linhaDTO.getNomeLinha());
+
             linhaExistente = this.iLinhaRepository.save(linhaExistente);
 
             return linhaDTO.of(linhaExistente);
@@ -88,6 +93,12 @@ public class LinhaService {
         this.iLinhaRepository.deleteById(codigo_linha);
     }
 
+    public String zeroAEsquerda(String zero){
+        String zerinho = StringUtil.leftPad(zero, 10, "0");
+
+        return zerinho;
+    }
+
     //Excel ---------------
 
     public void findAll(HttpServletResponse resposta) throws Exception {
@@ -98,13 +109,17 @@ public class LinhaService {
         PrintWriter escritor = resposta.getWriter();
 
         ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-        String[] tituloCSV = {"codigo_linha", "categoria_linha", "nome_linha"};
+        String[] tituloCSV = {"codigo_linha", "categoria_linha", "nome_linha", "categoria"};
         icsvWriter.writeNext(tituloCSV);
 
         for (Linha linhas : iLinhaRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{linhas.getCodigo_linha().toString(), linhas.getCategoria_linha().toString(), linhas.getNome_linha().toString()});
+            icsvWriter.writeNext(new String[]{
+                    linhas.getCodigoLinha(),
+                    linhas.getCategoriaLinha(),
+                    linhas.getNomeLinha(),
+                    linhas.getCategoriaLinha().getNomeCategoria()
+            });
         }
-
     }
 
     public List<Linha> leitorTotal(MultipartFile importacao) throws Exception {
@@ -128,9 +143,9 @@ public class LinhaService {
 
                 //dados[x] = dado pego baseado na formatação csv
 
-                linhaclasse.setCodigo_linha(Long.parseLong(dados[0]));
-                linhaclasse.setCategoria_linha(Long.parseLong(dados[1]));
-                linhaclasse.setNome_linha((dados[2]));
+                linhaclasse.setCodigoLinha((dados[0]));
+                //linhaclasse.setCategoria_linha((dados[1]));
+                linhaclasse.setNomeLinha((dados[2]));
 
                 resultado.add(linhaclasse);
                 System.out.println(resultado);

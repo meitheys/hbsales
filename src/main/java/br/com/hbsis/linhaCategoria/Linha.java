@@ -1,5 +1,7 @@
 package br.com.hbsis.linhaCategoria;
 
+import br.com.hbsis.categoria.Categoria;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,46 +10,58 @@ public class Linha {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private long id;
     @Column(name = "codigo_linha")
-    private Long codigo_linha;
-    @Column(name = "categoria_linha", unique = true, nullable = false)
-    private Long categoria_linha;
+    private String codigoLinha;
+    @ManyToOne
+    @JoinColumn(name = "categoria_linha", unique = true, nullable = false, referencedColumnName = "codigo_categoria")
+    private Categoria categoriaLinha;
     @Column(name = "nome_linha", unique = true, nullable = false, length = 200)
-    private String nome_linha;
+    private String nomeLinha;
 
-    public Long getCodigo_linha() {
-        return codigo_linha;
+    public long getId() {
+        return id;
     }
 
-    public void setCodigo_linha(Long codigo_linha) {
-        this.codigo_linha = codigo_linha;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public Long getCategoria_linha() {
-        return categoria_linha;
+    public String getCodigoLinha() {
+        return codigoLinha;
     }
 
-    public void setCategoria_linha(Long categoria_linha) {
-        this.categoria_linha = categoria_linha;
+    public void setCodigoLinha(String codigoLinha) {
+        this.codigoLinha = codigoLinha;
     }
 
-    public String getNome_linha() {
-        return nome_linha;
+    public Categoria getCategoriaLinha() {
+        return categoriaLinha;
     }
 
-    public void setNome_linha(String nome_linha) {
-        this.nome_linha = nome_linha;
+    public void setCategoriaLinha(Categoria categoriaLinha) {
+        this.categoriaLinha = categoriaLinha;
     }
+
+    public String getNomeLinha() {
+        return nomeLinha;
+    }
+
+    public void setNomeLinha(String nomeLinha) {
+        this.nomeLinha = nomeLinha;
+    }
+
 
     @Override
     public String toString() {
         return "Linha{" +
-                ", codigo_linha=" + codigo_linha +
-                ", categoria_linha=" + categoria_linha +
-                ", nome_linha='" + nome_linha + '\'' +
+                "id=" + id +
+                ", codigo_linha='" + codigoLinha + '\'' +
+                ", categoria_linha=" + categoriaLinha +
+                ", nome_linha='" + nomeLinha + '\'' +
                 '}';
     }
-
 
 }
 

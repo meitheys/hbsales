@@ -29,11 +29,11 @@ public class CategoriaRest {
     }
 
     @GetMapping("/{idcategoria}")
-    public CategoriaDTO find(@PathVariable("idcategoria") Long idcategoria) {
+    public Categoria find(@PathVariable("idcategoria") Long idcategoria) {
 
         LOGGER.info("Recebendo find by ID... id: [{}]", idcategoria);
 
-        return this.categoriaService.findById(idcategoria);
+        return this.categoriaService.findByIdString(idcategoria);
     }
 
     @PutMapping("/{idcategoria}")
