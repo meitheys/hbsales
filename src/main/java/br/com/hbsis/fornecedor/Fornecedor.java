@@ -17,8 +17,8 @@ public class Fornecedor {
     private String razao;
     @Column(name = "cnpj", nullable = false, length = 14)
     private String cnpj;
-    @OneToMany(mappedBy = "fornecedor", targetEntity = Categoria.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Categoria> categorias;
+//    @OneToMany(mappedBy = "fornecedor", targetEntity = Categoria.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<Categoria> categorias;
     @Column(name = "nome", unique = true, updatable = false, length = 100)
     private String nome;
     @Column(name = "endereco", nullable = false, length = 100)
@@ -52,13 +52,13 @@ public class Fornecedor {
         this.cnpj = cnpj;
     }
 
-    public List<Categoria> getCategorias() {
-        return categorias;
-    }
-
-    public void setCategorias(List<Categoria> categorias) {
-        this.categorias = categorias;
-    }
+//    public List<Categoria> getCategorias() {
+//        return categorias;
+//    }
+//
+//    public void setCategorias(List<Categoria> categorias) {
+//        this.categorias = categorias;
+//    }
 
     public String getNome() {
         return nome;
@@ -98,7 +98,7 @@ public class Fornecedor {
                 "id=" + idFornecedor +
                 ", razao='" + razao + '\'' +
                 ", cnpj='" + cnpj + '\'' +
-                ", categorias=" + categorias +
+//                ", categorias=" + categorias +
                 ", nome='" + nome + '\'' +
                 ", endereco='" + endereco + '\'' +
                 ", telefone='" + telefone + '\'' +

@@ -3,10 +3,11 @@ package br.com.hbsis.categoria;
 import br.com.hbsis.fornecedor.Fornecedor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "seg_categoria")
-public class Categoria {
+public class Categoria implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

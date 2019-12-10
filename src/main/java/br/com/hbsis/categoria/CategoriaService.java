@@ -115,13 +115,13 @@ public class CategoriaService {
 
         throw new IllegalArgumentException(String.format("ID não existe", id));
     }
-    public  Categoria existsByCategoria_linha (String categoria_linha) {
-        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(categoria_linha);
+    public  Categoria existsByCategoriaLinha(String categoriaLinha) {
+        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(categoriaLinha);
 
         if (categoriaOptional.isPresent()) {
             return categoriaOptional.get();
         }
-        throw new IllegalArgumentException(String.format("categoria_linha não existe", categoria_linha));
+        throw new IllegalArgumentException(String.format("categoria_linha não existe", categoriaLinha));
     }
 
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
@@ -174,9 +174,9 @@ public class CategoriaService {
                     linhas.getCodigoCategoria(),
                     linhas.getNomeCategoria(),
                     linhas.getFornecedor().getRazao(),
-                    formatarCnpj(linhas.getFornecedor().getCnpj())});
+                    formatarCnpj(linhas.getFornecedor().getCnpj())
+            });
         }
-
     }
 
     public List<Categoria> leitorTotal(MultipartFile importacao) throws Exception {
@@ -217,51 +217,9 @@ public class CategoriaService {
 
     }
 
-    public List<Categoria> readAll(MultipartFile file) throws Exception {
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-        List<String[]> linhas = csvReader.readAll();
-        List<Categoria> resultado = new ArrayList<>();
-
-        for (String[] linha : linhas) {
-            try {
-                String[] dados = linha[1].replaceAll("\"", "").split(";");
-
-                Categoria categoria = new Categoria();
-                Fornecedor fornecedor = new Fornecedor();
-                FornecedorDTO fornecedorDTO = new FornecedorDTO();
-
-
-                categoria.setCodigoCategoria((dados[0]));
-                categoria.setNomeCategoria((dados[2]));
-                fornecedorDTO = fornecedorService.findById(Long.parseLong(dados[1]));
-
-                fornecedor.setIdFornecedor(fornecedorDTO.getId());
-                fornecedor.setCnpj(fornecedorDTO.getCnpj());
-                fornecedor.setRazao(fornecedorDTO.getRazao());
-                fornecedor.setNome(fornecedorDTO.getNome());
-                fornecedor.setEndereco(fornecedorDTO.getEndereco());
-                fornecedor.setTelefone(fornecedorDTO.getTelefone());
-                fornecedor.setEmail(fornecedorDTO.getEmail());
-
-                categoria.setFornecedor(fornecedor);
-
-                resultado.add(categoria);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return iCategoriaRepository.saveAll(resultado);
-    }
 
 
 
-    public Categoria converter(CategoriaDTO categoriaDTO) {
 
-        Categoria codigo_categoria = new Categoria();
 
-        codigo_categoria.setCodigoCategoria(categoriaDTO.getCodigo_categoria());
-
-        return codigo_categoria;
-    }
 }

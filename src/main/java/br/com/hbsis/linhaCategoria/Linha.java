@@ -3,10 +3,11 @@ package br.com.hbsis.linhaCategoria;
 import br.com.hbsis.categoria.Categoria;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "seg_linha")
-public class Linha {
+public class Linha implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
