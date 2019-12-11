@@ -1,5 +1,7 @@
 package br.com.hbsis.produto;
 
+import br.com.hbsis.linhaCategoria.Linha;
+
 import java.time.LocalDate;
 
 public class ProdutoDTO {
@@ -7,7 +9,7 @@ public class ProdutoDTO {
     private String codigoProduto;
     private String nomeProduto;
     private double precoProduto;
-    private String linha;
+    private long linha;
     private long unidades;
     private double peso;
     private String unidadePeso;
@@ -17,7 +19,7 @@ public class ProdutoDTO {
 
     }
 
-    public ProdutoDTO(long idProduto, String codigoProduto, String nomeProduto, double precoProduto, String linha, long unidades, String unidadePeso, double peso, LocalDate validade) {
+    public ProdutoDTO(long idProduto, String codigoProduto, String nomeProduto, double precoProduto, long linha, long unidades, String unidadePeso, double peso, LocalDate validade) {
         this.idProduto = idProduto;
         this.codigoProduto = codigoProduto;
         this.nomeProduto = nomeProduto;
@@ -35,7 +37,7 @@ public class ProdutoDTO {
                 produto.getCodigoProduto(),
                 produto.getNomeProduto(),
                 produto.getPrecoProduto(),
-                produto.getLinha().getCodigoLinha(),
+                produto.getLinha().getId(),
                 produto.getUnidade(),
                 produto.getUnidadePeso(),
                 produto.getPeso(),
@@ -44,6 +46,7 @@ public class ProdutoDTO {
 
                 );
     }
+
 
     public long getIdProduto() {
         return idProduto;
@@ -77,11 +80,11 @@ public class ProdutoDTO {
         this.precoProduto = precoProduto;
     }
 
-    public String getLinha() {
+    public long getLinha() {
         return linha;
     }
 
-    public void setLinha(String linha) {
+    public void setLinha(long linha) {
         this.linha = linha;
     }
 

@@ -42,7 +42,7 @@ public class ProdutoService {
 
         Produto produto = new Produto();
         produto.setUnidadePeso(produtoDTO.getUnidadePeso());
-        produto.setLinha(linhaService.findByCodigoLinha(produtoDTO.getCodigoProduto()));
+        produto.setLinha(linhaService.findById(produtoDTO.getLinha()));
         produto.setCodigoProduto(produtoDTO.getCodigoProduto());
         produto.setNomeProduto(produtoDTO.getNomeProduto());
         produto.setPeso(produtoDTO.getPeso());

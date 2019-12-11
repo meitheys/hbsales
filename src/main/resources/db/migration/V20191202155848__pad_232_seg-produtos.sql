@@ -4,7 +4,7 @@ CREATE TABLE seg_produtos
     codigo_produto VARCHAR (10),
     nome_produto VARCHAR (200),
     preco_produto DECIMAL ,
-    linha VARCHAR(10) REFERENCES seg_linha (codigo_linha),
+    linha BIGINT REFERENCES seg_linha (id),
     unidades BIGINT,
     peso DECIMAL ,
     unidade_peso VARCHAR (10),

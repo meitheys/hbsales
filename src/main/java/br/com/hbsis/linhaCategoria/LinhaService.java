@@ -58,14 +58,15 @@ public class LinhaService {
 
     }
 
-    public Linha findByCodigoLinha(String codigoLinha) {
-        Optional<Linha> categoriaOptional = this.iLinhaRepository.findByCodigoLinha(codigoLinha);
-        System.out.println(categoriaOptional);
+    public Linha findById(long id) {
+        Optional<Linha> linhaOptional = this.iLinhaRepository.findById(id);
+        System.out.println(id);
 
-        if (categoriaOptional.isPresent()) {
-            return categoriaOptional.get();
+        if (linhaOptional.isPresent()) {
+            return linhaOptional.get();
         }
-        throw new IllegalArgumentException(String.format("Linha não existe", codigoLinha));
+
+        throw new IllegalArgumentException(String.format("ID não existe", id));
     }
 
     public LinhaDTO findLinha(Long codigo_linha) {
@@ -75,7 +76,6 @@ public class LinhaService {
             return LinhaDTO.of(linhaSecundaria.get());
         }
 
-        // '%s' serve como uma marcação para quando der 'String.format', que aloca a variavel que contém o conteúdo.
         throw new IllegalArgumentException(String.format("ID %s não existe", codigo_linha));
     }
 

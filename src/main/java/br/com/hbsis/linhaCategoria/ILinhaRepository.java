@@ -8,7 +8,7 @@ import java.util.Optional;
 @Repository
     public interface ILinhaRepository extends JpaRepository<Linha, Long> {
 
-    boolean existsByCodigoLinha(String codigoLinha);
-    Optional<Linha> findByCodigoLinha(String codigoLinha);
+    boolean existsById(long id);
+    Optional<Linha> findById(long id);
 
 }
