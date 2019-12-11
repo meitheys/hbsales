@@ -21,12 +21,12 @@ public class ProdutoRest {
         this.produtoService = produtoService;
     }
 
-    @PutMapping("/importarPF/{codigo_produto}")
+    /*@PutMapping("/importarPF/{codigo_produto}")
     public void acharFornecedorProduto(@PathVariable("codigo_produto") Long codigo_produto, @RequestParam("file") MultipartFile multipartFile) throws Exception {
         LOGGER.info("Adicionando produto a fornecedor de ID... [{}]", codigo_produto);
         produtoService.acharFornecedorProduto(codigo_produto, multipartFile);
     }
-
+*/
 
     @PostMapping
     public ProdutoDTO save(@RequestBody ProdutoDTO produtoDTO) {
@@ -61,7 +61,7 @@ public class ProdutoRest {
 
     //Excel
 
-   /* @GetMapping("/exportarcsv")
+    @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
         produtoService.findAll(file);
     }
@@ -69,7 +69,7 @@ public class ProdutoRest {
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
         produtoService.leitorTotal(arquivo);
-    }*/
+    }
 
 
 

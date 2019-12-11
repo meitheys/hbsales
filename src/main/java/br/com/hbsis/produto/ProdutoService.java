@@ -1,9 +1,14 @@
 package br.com.hbsis.produto;
 
+import br.com.hbsis.categoria.Categoria;
 import br.com.hbsis.categoria.CategoriaService;
+import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorRepository;
+import br.com.hbsis.linhaCategoria.Linha;
 import br.com.hbsis.linhaCategoria.LinhaService;
 import com.opencsv.*;
+import freemarker.template.utility.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +48,7 @@ public class ProdutoService {
         Produto produto = new Produto();
         produto.setUnidadePeso(produtoDTO.getUnidadePeso());
         produto.setLinha(linhaService.findById(produtoDTO.getLinha()));
-        produto.setCodigoProduto(produtoDTO.getCodigoProduto());
+        produto.setCodigoProduto(zeroAEsquerda(produtoDTO.getCodigoProduto().toUpperCase()));
         produto.setNomeProduto(produtoDTO.getNomeProduto());
         produto.setPeso(produtoDTO.getPeso());
         produto.setPrecoProduto(produtoDTO.getPrecoProduto());
@@ -58,10 +63,64 @@ public class ProdutoService {
     private void validate(ProdutoDTO produtoDTO) {
         LOGGER.info("Validando produto");
 
-        if (produtoDTO == null) {
+        if (StringUtils.isEmpty(String.valueOf(produtoDTO.getValidade()))) {
+            throw new IllegalArgumentException("A data de validade do produto está nula");
+        }
+        if (StringUtils.isEmpty(produtoDTO.getUnidadePeso())) {
+            throw new IllegalArgumentException("Unidade de medida não pode ser nula");
+        }
+        if (StringUtils.isEmpty(String.valueOf(produtoDTO.getLinha()))) {
+            throw new IllegalArgumentException("Linha do produto não informada");
+        }
+        if (StringUtils.isEmpty(produtoDTO.getCodigoProduto())) {
+            throw new IllegalArgumentException("Código do produto não pode ser nulo");
+        }
+        if (StringUtils.isEmpty(produtoDTO.getNomeProduto())) {
+            throw new IllegalArgumentException("O nome do produto nao deve ser nulo");
+        }
+        if (StringUtils.isEmpty(String.valueOf(produtoDTO.getPrecoProduto()))) {
+            throw new IllegalArgumentException("O preço não deve ser nulo");
+        }
+        if (StringUtils.isEmpty(String.valueOf(produtoDTO.getUnidades()))) {
+            throw new IllegalArgumentException("A unidade não deve ser nula");
+        }
+        if (produtoDTO == null) {c
             throw new IllegalArgumentException("Produto não deve ser nulo");
         }
 
+        switch (produtoDTO.getUnidadePeso()) {
+            case "Kg":
+            case "g":
+            case "Mg":
+                break;
+            default:
+                throw new IllegalArgumentException("Informe uma unidade correta. Ela são: Kg, g, Mg.");
+        }
+
+        if(){
+
+        }
+
+    }
+
+    public String formatarCnpj(String cnpj) {
+        Fornecedor fornecedor = new Fornecedor();
+        String mask = fornecedor.getCnpj();
+        mask = (cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12, 14));
+        return mask;
+    }
+
+    public ProdutoDTO findByCodigoProduto(String codigoProduto) {
+        Optional<Produto> produtoDuplicado = this.iProdutoRepository.findByCodigoProduto(codigoProduto);
+
+        if (produtoDuplicado.isPresent()) {
+            Produto produto = produtoDuplicado.get();
+            return ProdutoDTO.of(produto);
+        }
+
+
+
+        throw new IllegalArgumentException(String.format("codigoProduto %s não existe", codigoProduto));
     }
 
     public ProdutoDTO findById(Long codigo_produto) {
@@ -107,7 +166,13 @@ public class ProdutoService {
         this.iProdutoRepository.deleteById(codigo_produto);
     }
 
- /*   public List<Produto> produto(MultipartFile importacao) throws Exception {
+    public String zeroAEsquerda(String zero){
+        String zerinho = StringUtil.leftPad(zero, 10, "0");
+
+        return zerinho;
+    }
+
+    /*public List<Produto> produto(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
@@ -161,14 +226,28 @@ public class ProdutoService {
         String[] tituloCSV = {"codigo_produto", "nome_produto", "unidades_por_caixa", "peso_unidade", "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria", "cnpj_fornecedor", "razão_fornecedor"};
         icsvWriter.writeNext(tituloCSV);
 
+        Categoria catK = new Categoria();
+        Fornecedor forK = new Fornecedor();
+
         for (Produto linhas : iProdutoRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{linhas.getCodigoProduto(), linhas.getNomeProduto(), String.valueOf(linhas.getUnidade()), String.valueOf(linhas.getPeso()), linhas.getLinha().getCodigoLinha() });
+            icsvWriter.writeNext(new String[]{
+                    linhas.getCodigoProduto(), //Codigo
+                    linhas.getNomeProduto(), //Nome do Produto
+                    String.valueOf(linhas.getUnidade()), //Unidades
+                    linhas.getPeso()+linhas.getUnidadePeso(), //Peso
+                    linhas.getLinha().getCodigoLinha(), //Codigo da Linha
+                    linhas.getLinha().getNomeLinha(), //Nome da Linha
+                    linhas.getLinha().getCategoriaLinha().getCodigoCategoria(), //Codigo da Categoria
+                    linhas.getLinha().getCategoriaLinha().getNomeCategoria(), //Nome da Categoria
+                    formatarCnpj(linhas.getLinha().getCategoriaLinha().getFornecedor().getCnpj()), //CNPJ do Fornecedor
+                    linhas.getLinha().getCategoriaLinha().getFornecedor().getRazao(), //Razão do Fornecedor
+            });
         }
     }
 
     //Atividade 11 ______________________________________________//________________________________________________
 
-    public void acharFornecedorProduto(Long idFornecedor, MultipartFile multipartFile) throws Exception {
+    /*public void acharFornecedorProduto(Long idFornecedor, MultipartFile multipartFile) throws Exception {
 
         InputStreamReader inputStreamReader = new InputStreamReader(multipartFile.getInputStream());
 
@@ -202,10 +281,9 @@ public class ProdutoService {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 
-
-    /*public List<Produto> leitorTotal(MultipartFile importacao) throws Exception {
+    public List<Produto> leitorTotal(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
@@ -225,26 +303,34 @@ public class ProdutoService {
                 Produto produto = new Produto();
 
                 //dados[x] = dado pego baseado na formatação csv
+                String cod = dados[4];
 
-                produto.setValidade((LocalDate.parse(dados[6])));
-                produto.setUnidade(Long.parseLong(dados[4]));
-                produto.setPrecoProduto((Double.parseDouble(dados[2])));
-                produto.setPeso((Double.parseDouble(dados[5])));
-                produto.setNomeProduto((dados[1]));
-                produto.setLinha((Long.parseLong(dados[3])));
-                produto.setCodigoProduto(((dados[0])));
+                Linha linhaK = new Linha();
+                Categoria catK = new Categoria();
+                Fornecedor forK = new Fornecedor();
+
+                produto.setCodigoProduto(dados[0]); //
+                produto.setNomeProduto(dados[1]); //
+                produto.setUnidade(Long.parseLong(dados[2])); //
+                produto.setPeso(Double.parseDouble(dados[3].replaceAll("[^0-9.]", ""))); //
+                produto.setUnidadePeso(dados[3].replaceAll("[^A-Za-z]","")); //
+                linhaK.setCodigoLinha(dados[4]);//
+                linhaK.setNomeLinha(dados[5]);
+                catK.setCodigoCategoria(dados[6]);
+                catK.setNomeCategoria(dados[7]);
+                forK.setCnpj(dados[8].replaceAll("[^0-9]",""));
+                forK.setRazao(dados[9]);
 
                 resultado.add(produto);
                 System.out.println(produto);
 
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
         }
         return iProdutoRepository.saveAll(resultado);
 
-    }*/
+    }
 }
 
 

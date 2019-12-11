@@ -69,6 +69,16 @@ public class LinhaService {
         throw new IllegalArgumentException(String.format("ID não existe", id));
     }
 
+    public LinhaDTO findByLinhaCodigoLinha(String codLinha) {
+        Optional<Linha> linhaSecundaria = this.iLinhaRepository.findByCodigoLinha(codLinha);
+
+        if (linhaSecundaria.isPresent()) {
+            return LinhaDTO.of(linhaSecundaria.get());
+        }
+
+        throw new IllegalArgumentException(String.format("codigo Linha  %s não existe", codLinha));
+    }
+
     public LinhaDTO findLinha(Long codigo_linha) {
         Optional<Linha> linhaSecundaria = this.iLinhaRepository.findById(codigo_linha);
 
@@ -76,6 +86,7 @@ public class LinhaService {
             return LinhaDTO.of(linhaSecundaria.get());
         }
 
+        // '%s' serve como uma marcação para quando der 'String.format', que aloca a variavel que contém o conteúdo.
         throw new IllegalArgumentException(String.format("ID %s não existe", codigo_linha));
     }
 
