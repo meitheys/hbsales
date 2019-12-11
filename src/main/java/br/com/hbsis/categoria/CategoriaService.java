@@ -115,6 +115,7 @@ public class CategoriaService {
 
         throw new IllegalArgumentException(String.format("ID não existe", id));
     }
+
     public  Categoria existsByCategoriaLinha(String categoriaLinha) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(categoriaLinha);
 

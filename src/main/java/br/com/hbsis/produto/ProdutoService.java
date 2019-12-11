@@ -4,7 +4,6 @@ import br.com.hbsis.categoria.CategoriaService;
 import br.com.hbsis.fornecedor.FornecedorRepository;
 import br.com.hbsis.linhaCategoria.LinhaService;
 import com.opencsv.*;
-import com.sun.org.apache.xpath.internal.operations.Mult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -12,12 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,16 +41,16 @@ public class ProdutoService {
         LOGGER.debug("Produto: {}", produtoDTO);
 
         Produto produto = new Produto();
-        produto.setLinha(produtoDTO.getLinha());
-        produto.setCodigo_produto(produtoDTO.getCodigoProduto());
-        produto.setNome_produto(produtoDTO.getNomeProduto());
+        produto.setUnidadePeso(produtoDTO.getUnidadePeso());
+        produto.setLinha(linhaService.findByCodigoLinha(produtoDTO.getCodigoProduto()));
+        produto.setCodigoProduto(produtoDTO.getCodigoProduto());
+        produto.setNomeProduto(produtoDTO.getNomeProduto());
         produto.setPeso(produtoDTO.getPeso());
-        produto.setPreco_produto(produtoDTO.getPrecoProduto());
+        produto.setPrecoProduto(produtoDTO.getPrecoProduto());
         produto.setUnidade(produtoDTO.getUnidades());
         produto.setValidade(produtoDTO.getValidade());
-        produto = this.iProdutoRepository.save(produto);
 
-        System.out.println(produto);
+        produto = this.iProdutoRepository.save(produto);
 
         return produtoDTO.of(produto);
     }
@@ -90,10 +87,10 @@ public class ProdutoService {
 
             produtoDuplicado.setValidade(produtoDuplicado.getValidade());
             produtoDuplicado.setUnidade(produtoDuplicado.getUnidade());
-            produtoDuplicado.setPreco_produto(produtoDuplicado.getPreco_produto());
+            produtoDuplicado.setPrecoProduto(produtoDuplicado.getPrecoProduto());
             produtoDuplicado.setPeso(produtoDuplicado.getPeso());
-            produtoDuplicado.setNome_produto(produtoDuplicado.getNome_produto());
-            produtoDuplicado.setCodigo_produto(produtoDuplicado.getCodigo_produto());
+            produtoDuplicado.setNomeProduto(produtoDuplicado.getNomeProduto());
+            produtoDuplicado.setCodigoProduto(produtoDuplicado.getCodigoProduto());
             produtoDuplicado.setLinha(produtoDuplicado.getLinha());
 
             produtoDuplicado = this.iProdutoRepository.save(produtoDuplicado);
@@ -110,7 +107,7 @@ public class ProdutoService {
         this.iProdutoRepository.deleteById(codigo_produto);
     }
 
-    public List<Produto> produto(MultipartFile importacao) throws Exception {
+ /*   public List<Produto> produto(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
@@ -133,11 +130,11 @@ public class ProdutoService {
 
                 produto.setValidade((LocalDate.parse(dados[6])));
                 produto.setUnidade(Long.parseLong(dados[4]));
-                produto.setPreco_produto((Double.parseDouble(dados[2])));
+                produto.setPrecoProduto((Double.parseDouble(dados[2])));
                 produto.setPeso((Double.parseDouble(dados[5])));
-                produto.setNome_produto((dados[1]));
-                produto.setLinha((Long.parseLong(dados[3])));
-                produto.setCodigo_produto((Long.parseLong(dados[0])));
+                produto.setNomeProduto((dados[1]));
+                produto.setLinha(categoriaService.existsByCategoriaLinha(linhaDTO.getCategoriaLinha()));
+                produto.setCodigoProduto((dados[0]));
 
                 resultado.add(produto);
                 System.out.println(produto);
@@ -149,7 +146,7 @@ public class ProdutoService {
         }
         return iProdutoRepository.saveAll(resultado);
 
-    }
+    }*/
 
     //Excel
 
@@ -161,11 +158,11 @@ public class ProdutoService {
         PrintWriter escritor = resposta.getWriter();
 
         ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-        String[] tituloCSV = {"codigo_produto", "nome_produto", "preco_produto", "linha", "unidades", "peso", "validade"};
+        String[] tituloCSV = {"codigo_produto", "nome_produto", "unidades_por_caixa", "peso_unidade", "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria", "cnpj_fornecedor", "razão_fornecedor"};
         icsvWriter.writeNext(tituloCSV);
 
         for (Produto linhas : iProdutoRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{String.valueOf(linhas.getCodigo_produto()), linhas.getNome_produto(), String.valueOf(linhas.getPreco_produto()), String.valueOf(linhas.getLinha()), String.valueOf(linhas.getUnidade()), String.valueOf(linhas.getPeso()), String.valueOf(linhas.getValidade())});
+            icsvWriter.writeNext(new String[]{linhas.getCodigoProduto(), linhas.getNomeProduto(), String.valueOf(linhas.getUnidade()), String.valueOf(linhas.getPeso()), linhas.getLinha().getCodigoLinha() });
         }
     }
 
@@ -187,19 +184,16 @@ public class ProdutoService {
                 if (fornecedorRepository.existsById(idFornecedor)) {
                     produto.setValidade((LocalDate.parse(dado[6])));
                     produto.setUnidade(Long.parseLong(dado[4]));
-                    produto.setPreco_produto((Double.parseDouble(dado[2])));
+                    produto.setPrecoProduto((Double.parseDouble(dado[2])));
                     produto.setPeso((Double.parseDouble(dado[5])));
-                    produto.setNome_produto((dado[1]));
-                    produto.setLinha((Long.parseLong(dado[3])));
-                    produto.setCodigo_produto((Long.parseLong(dado[0])));
+                    produto.setNomeProduto((dado[1]));
+                    produto.setCodigoProduto(dado[0]);
 
-                    if (iProdutoRepository.existsById(produto.getCodigo_produto())) {
-                        produto.setCodigo_produto(iProdutoRepository.findById(produto.getCodigo_produto()).get().getCodigo_produto());
-                        update(ProdutoDTO.of(produto), produto.getCodigo_produto());
-                    /* IMPLEMENTAR DEPOIS  ------------------} else if (produto = "2323") {
-                        iProdutoRepository.save(produto);------------------*/
+                    if (iProdutoRepository.existsById(produto.getIdProduto())) {
+                        produto.setIdProduto(iProdutoRepository.findById(produto.getIdProduto()).get().getIdProduto());
+                        update(ProdutoDTO.of(produto), produto.getIdProduto());
                     } else {
-                        LOGGER.info("Produto {} pertence a outro fornecedor", produto.getCodigo_produto());
+                        LOGGER.info("Produto {} pertence a outro fornecedor", produto.getIdProduto());
                     }
 
                 }
@@ -211,7 +205,7 @@ public class ProdutoService {
     }
 
 
-    public List<Produto> leitorTotal(MultipartFile importacao) throws Exception {
+    /*public List<Produto> leitorTotal(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
@@ -234,11 +228,11 @@ public class ProdutoService {
 
                 produto.setValidade((LocalDate.parse(dados[6])));
                 produto.setUnidade(Long.parseLong(dados[4]));
-                produto.setPreco_produto((Double.parseDouble(dados[2])));
+                produto.setPrecoProduto((Double.parseDouble(dados[2])));
                 produto.setPeso((Double.parseDouble(dados[5])));
-                produto.setNome_produto((dados[1]));
+                produto.setNomeProduto((dados[1]));
                 produto.setLinha((Long.parseLong(dados[3])));
-                produto.setCodigo_produto((Long.parseLong(dados[0])));
+                produto.setCodigoProduto(((dados[0])));
 
                 resultado.add(produto);
                 System.out.println(produto);
@@ -250,6 +244,7 @@ public class ProdutoService {
         }
         return iProdutoRepository.saveAll(resultado);
 
-    }
-
+    }*/
 }
+
+

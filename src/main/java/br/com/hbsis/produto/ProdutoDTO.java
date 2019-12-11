@@ -1,51 +1,63 @@
 package br.com.hbsis.produto;
 
-import org.apache.tomcat.jni.Local;
-
 import java.time.LocalDate;
-import java.util.Date;
 
 public class ProdutoDTO {
-    private long codigoProduto;
+    private long idProduto;
+    private String codigoProduto;
     private String nomeProduto;
     private double precoProduto;
-    private long linha;
+    private String linha;
     private long unidades;
     private double peso;
+    private String unidadePeso;
     private LocalDate validade;
 
     public ProdutoDTO() {
 
     }
 
-    public ProdutoDTO(long codigoProduto, String nomeProduto, double precoProduto, long linha, long unidades, double peso, LocalDate validade) {
+    public ProdutoDTO(long idProduto, String codigoProduto, String nomeProduto, double precoProduto, String linha, long unidades, String unidadePeso, double peso, LocalDate validade) {
+        this.idProduto = idProduto;
         this.codigoProduto = codigoProduto;
         this.nomeProduto = nomeProduto;
         this.precoProduto = precoProduto;
         this.linha = linha;
         this.unidades = unidades;
         this.peso = peso;
+        this.unidadePeso = unidadePeso;
         this.validade = validade;
     }
 
-
     public static ProdutoDTO of(Produto produto) {
         return new ProdutoDTO(
-                produto.getCodigo_produto(),
-                produto.getNome_produto(),
-                produto.getPreco_produto(),
-                produto.getLinha(),
+                produto.getIdProduto(),
+                produto.getCodigoProduto(),
+                produto.getNomeProduto(),
+                produto.getPrecoProduto(),
+                produto.getLinha().getCodigoLinha(),
                 produto.getUnidade(),
+                produto.getUnidadePeso(),
                 produto.getPeso(),
                 produto.getValidade()
+
+
                 );
     }
 
-    public long getCodigoProduto() {
+    public long getIdProduto() {
+        return idProduto;
+    }
+
+    public void setIdProduto(long idProduto) {
+        this.idProduto = idProduto;
+    }
+
+    public String getCodigoProduto() {
         return codigoProduto;
     }
 
-    public void setCodigoProduto(long codigoProduto) {
+    public void setCodigoProduto(String codigoProduto) {
         this.codigoProduto = codigoProduto;
     }
 
@@ -65,11 +77,11 @@ public class ProdutoDTO {
         this.precoProduto = precoProduto;
     }
 
-    public long getLinha() {
+    public String getLinha() {
         return linha;
     }
 
-    public void setLinha(long linha) {
+    public void setLinha(String linha) {
         this.linha = linha;
     }
 
@@ -89,6 +101,14 @@ public class ProdutoDTO {
         this.peso = peso;
     }
 
+    public String getUnidadePeso() {
+        return unidadePeso;
+    }
+
+    public void setUnidadePeso(String unidadePeso) {
+        this.unidadePeso = unidadePeso;
+    }
+
     public LocalDate getValidade() {
         return validade;
     }
@@ -100,12 +120,14 @@ public class ProdutoDTO {
     @Override
     public String toString() {
         return "ProdutoDTO{" +
-                "codigoProduto=" + codigoProduto +
+                "idProduto=" + idProduto +
+                ", codigoProduto='" + codigoProduto + '\'' +
                 ", nomeProduto='" + nomeProduto + '\'' +
                 ", precoProduto=" + precoProduto +
                 ", linha=" + linha +
                 ", unidades=" + unidades +
                 ", peso=" + peso +
+                ", unidadePeso='" + unidadePeso + '\'' +
                 ", validade=" + validade +
                 '}';
     }

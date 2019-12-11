@@ -15,7 +15,7 @@ public class Linha implements Serializable {
     private long id;
     @Column(name = "codigo_linha")
     private String codigoLinha;
-    @ManyToOne
+
     @JoinColumn(name = "categoria_linha", unique = true, nullable = false, referencedColumnName = "codigo_categoria")
     private Categoria categoriaLinha;
     @Column(name = "nome_linha", unique = true, nullable = false, length = 200)

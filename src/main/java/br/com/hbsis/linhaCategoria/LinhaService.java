@@ -26,6 +26,7 @@ public class LinhaService {
     private final CategoriaService categoriaService;
     private final ICategoriaRepository iCategoriaRepository;
 
+
     public LinhaService(ILinhaRepository iLinhaRepository, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
         this.iLinhaRepository = iLinhaRepository;
         this.categoriaService = categoriaService;
@@ -55,6 +56,16 @@ public class LinhaService {
             throw new IllegalArgumentException("Linha não deve ser nula");
         }
 
+    }
+
+    public Linha findByCodigoLinha(String codigoLinha) {
+        Optional<Linha> categoriaOptional = this.iLinhaRepository.findByCodigoLinha(codigoLinha);
+        System.out.println(categoriaOptional);
+
+        if (categoriaOptional.isPresent()) {
+            return categoriaOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("Linha não existe", codigoLinha));
     }
 
     public LinhaDTO findLinha(Long codigo_linha) {

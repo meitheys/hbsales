@@ -7,5 +7,7 @@ import java.util.Optional;
 
 @Repository
     public interface IProdutoRepository extends JpaRepository<Produto, Long> {
-    Optional<Produto> findById(Long codigo_produto);
+
+    boolean existsById(Long id);
+    Optional<Produto> findById(Long id);
 }

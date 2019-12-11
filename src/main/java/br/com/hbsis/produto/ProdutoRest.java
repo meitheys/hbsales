@@ -61,7 +61,7 @@ public class ProdutoRest {
 
     //Excel
 
-    @GetMapping("/exportarcsv")
+   /* @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
         produtoService.findAll(file);
     }
@@ -69,7 +69,7 @@ public class ProdutoRest {
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
         produtoService.leitorTotal(arquivo);
-    }
+    }*/
 
 
 
