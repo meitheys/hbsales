@@ -69,14 +69,14 @@ public class LinhaService {
         throw new IllegalArgumentException(String.format("ID não existe", id));
     }
 
-    public LinhaDTO findByLinhaCodigoLinha(String codLinha) {
-        Optional<Linha> linhaSecundaria = this.iLinhaRepository.findByCodigoLinha(codLinha);
+    public Linha findByLinhaCodigoLinha(String codigoLinha) {
+        Optional<Linha> linhaSecundaria = this.iLinhaRepository.findByCodigoLinha(codigoLinha);
 
         if (linhaSecundaria.isPresent()) {
-            return LinhaDTO.of(linhaSecundaria.get());
-        }
+            return linhaSecundaria.get();
+    }
 
-        throw new IllegalArgumentException(String.format("codigo Linha  %s não existe", codLinha));
+        throw new IllegalArgumentException(String.format("codigo Linha  %s não existe", codigoLinha));
     }
 
     public LinhaDTO findLinha(Long codigo_linha) {

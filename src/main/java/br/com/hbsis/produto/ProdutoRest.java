@@ -21,13 +21,6 @@ public class ProdutoRest {
         this.produtoService = produtoService;
     }
 
-    /*@PutMapping("/importarPF/{codigo_produto}")
-    public void acharFornecedorProduto(@PathVariable("codigo_produto") Long codigo_produto, @RequestParam("file") MultipartFile multipartFile) throws Exception {
-        LOGGER.info("Adicionando produto a fornecedor de ID... [{}]", codigo_produto);
-        produtoService.acharFornecedorProduto(codigo_produto, multipartFile);
-    }
-*/
-
     @PostMapping
     public ProdutoDTO save(@RequestBody ProdutoDTO produtoDTO) {
         LOGGER.info("Recebendo solicitação de persistência de br.com.hbsis.fornecedor...");
@@ -71,6 +64,10 @@ public class ProdutoRest {
         produtoService.leitorTotal(arquivo);
     }
 
+    @PostMapping("/importar/{id}")
+    public void acharFornecedorProduto(@PathVariable("id") long id, @RequestParam("file") MultipartFile multipartFile) throws Exception {
+        produtoService.acharFornecedorProduto(id, multipartFile);
+    }
 
 
 }

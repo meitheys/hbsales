@@ -12,3 +12,4 @@ CREATE TABLE seg_produtos
 
 );
 
+create unique index ix_seg_produtos_01 on seg_produtos (codigo_produto asc);

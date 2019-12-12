@@ -87,7 +87,15 @@ public class FornecedorService {
 
         }
 
+    public Fornecedor findByFornecedorCnpj(String cnpj) {
+        Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findByCnpj(cnpj);
 
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", cnpj));
+    }
 
 
     public FornecedorDTO findById(Long id) {
