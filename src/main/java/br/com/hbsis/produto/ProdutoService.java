@@ -12,6 +12,7 @@ import br.com.hbsis.linhaCategoria.ILinhaRepository;
 import br.com.hbsis.linhaCategoria.Linha;
 import br.com.hbsis.linhaCategoria.LinhaDTO;
 import br.com.hbsis.linhaCategoria.LinhaService;
+import br.com.hbsis.pedido.PedidoRest;
 import com.opencsv.*;
 import freemarker.template.utility.StringUtil;
 import jdk.nashorn.internal.runtime.options.Option;
@@ -38,7 +39,6 @@ public class ProdutoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoService.class);
     private final IProdutoRepository iProdutoRepository;
     private final LinhaService linhaService;
-    private final ProdutoDTO produtoDTO;
     private final CategoriaService categoriaService;
     private final FornecedorRepository fornecedorRepository;
     private final FornecedorService fornecedorService;
@@ -53,7 +53,6 @@ public class ProdutoService {
         this.fornecedorService = fornecedorService;
         this.iCategoriaRepository = iCategoriaRepository;
         this.iLinhaRepository = iLinhaRepository;
-        this.produtoDTO = produtoDTO;
     }
 
     public ProdutoDTO save(ProdutoDTO produtoDTO) {
@@ -154,6 +153,16 @@ public class ProdutoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", codigo_produto));
     }
 
+    public Produto findByProdutoId(Long id) {
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
+
+        if (produtoOptional.isPresent()) {
+            return produtoOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public ProdutoDTO update(ProdutoDTO produtoDTO, Long codigo_produto) {
         Optional<Produto> produtoDuplicadoDois = this.iProdutoRepository.findById(codigo_produto);
 
@@ -205,9 +214,6 @@ public class ProdutoService {
         String[] tituloCSV = {"codigo_produto", "nome_produto", "unidades_por_caixa", "preço", "peso_unidade", "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria", "cnpj_fornecedor", "razão_fornecedor", "validade", "id", "linha"};
         icsvWriter.writeNext(tituloCSV);
 
-        Categoria catK = new Categoria();
-        Fornecedor forK = new Fornecedor();
-
         for (Produto linhas : iProdutoRepository.findAll()) {
             icsvWriter.writeNext(new String[]{
                     linhas.getCodigoProduto(), //Codigo
@@ -219,7 +225,7 @@ public class ProdutoService {
                     linhas.getLinha().getNomeLinha(), //Nome da Linha
                     linhas.getLinha().getCategoriaLinha().getCodigoCategoria(), //Codigo da Categoria
                     linhas.getLinha().getCategoriaLinha().getNomeCategoria(), //Nome da Categoria
-                    formatarCnpj(linhas.getLinha().getCategoriaLinha().getFornecedor().getCnpj()), //CNPJ do Fornecedor
+                    linhas.getLinha().getCategoriaLinha().getFornecedor().getCnpj(), //CNPJ do Fornecedor
                     linhas.getLinha().getCategoriaLinha().getFornecedor().getRazao(), //Razão do Fornecedor
                     String.valueOf(linhas.getValidade()),
                     String.valueOf(linhas.getIdProduto()),
@@ -253,6 +259,7 @@ public class ProdutoService {
             try {
                 String[] dado = linhas[0].replaceAll("\"", "").split(";");
 
+                ProdutoDTO produtoDTO = new ProdutoDTO();
                 Produto produto = new Produto();
                 Categoria categoria = new Categoria();
                 Linha linha = new Linha();
@@ -308,7 +315,7 @@ public class ProdutoService {
 
                 if (iProdutoRepository.existsByCodigoProduto(produto.getCodigoProduto()) && idFornecedor == produto.getLinha().getCategoriaLinha().getFornecedor().getIdFornecedor()) {
                     produto.setIdProduto(findByCodigoProduto(produto.getCodigoProduto()).getIdProduto());
-                    update(ProdutoDTO.of(produto)), produto.getIdProduto();
+                    update(ProdutoDTO.of(produto), produto.getIdProduto());
                 } else if (idFornecedor == produto.getLinha().getCategoriaLinha().getFornecedor().getIdFornecedor()) {
                     produtoDTO.setIdProduto(produto.getIdProduto());
                     produtoDTO.setCodigoProduto(produto.getCodigoProduto());
@@ -323,15 +330,12 @@ public class ProdutoService {
                 } else {
                     LOGGER.info("Produto [{}] pertence a outro fornecedor", produto.getIdProduto());
                 }
-            }
 
-        } catch (Exception e){
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
-
-
-
 
     public List<Produto> leitorTotal(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());

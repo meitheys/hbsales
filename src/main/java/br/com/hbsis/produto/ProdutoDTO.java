@@ -1,9 +1,12 @@
 package br.com.hbsis.produto;
 
 import br.com.hbsis.linhaCategoria.Linha;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+@Component
 public class ProdutoDTO {
     private long idProduto;
     private String codigoProduto;
@@ -42,11 +45,8 @@ public class ProdutoDTO {
                 produto.getUnidadePeso(),
                 produto.getPeso(),
                 produto.getValidade()
-
-
-                );
+        );
     }
-
 
     public long getIdProduto() {
         return idProduto;

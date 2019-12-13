@@ -38,6 +38,28 @@ public class FuncionarioService {
             throw new IllegalArgumentException("Funcionario nulo!");
     }
 
+    public Funcionario findByFuncionarioId(Long id) {
+        Optional<Funcionario> funcionarioOptional = this.iFuncionarioRepository.findById(id);
+
+        if (funcionarioOptional.isPresent()) {
+            return funcionarioOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+
+    public FuncionarioDTO findById(Long id) {
+        Optional<Funcionario> funcionarioOptional = this.iFuncionarioRepository.findById(id);
+
+        if (funcionarioOptional.isPresent()) {
+            Funcionario funcionario = funcionarioOptional.get();
+            return FuncionarioDTO.of(funcionario);
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public FuncionarioDTO findFuncionario(Long id){
         Optional<Funcionario> funcionarioSecundario = this.iFuncionarioRepository.findById(id);
 

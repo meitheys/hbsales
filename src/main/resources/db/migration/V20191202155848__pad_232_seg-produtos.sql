@@ -1,6 +1,6 @@
 CREATE TABLE seg_produtos
 (
-    id BIGINT IDENTITY (1,1),
+    id BIGINT PRIMARY KEY IDENTITY (1,1),
     codigo_produto VARCHAR (10),
     nome_produto VARCHAR (200),
     preco_produto DECIMAL ,
