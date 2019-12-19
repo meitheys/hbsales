@@ -2,7 +2,10 @@ package br.com.hbsis.pedido;
 
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.produto.Produto;
+import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 public class PedidoDTO {
     private long id;
@@ -10,17 +13,21 @@ public class PedidoDTO {
     private long produtos;
     private long quantidade;
     private String status;
+    private LocalDate periodo;
+    private long idPeriodo;
 
     public PedidoDTO(){
 
     }
 
-    public PedidoDTO(long id, long funcionario, long produtos, long quantidade, String status){
+    public PedidoDTO(long id, long funcionario, long produtos, long quantidade, String status, LocalDate periodo, long idPeriodo){
         this.id = id;
         this.funcionario = funcionario;
         this.produtos = produtos;
         this.quantidade = quantidade;
         this.status = status;
+        this.periodo = periodo;
+        this.idPeriodo = idPeriodo;
     }
 
     public static PedidoDTO of(Pedido pedido) {
@@ -29,8 +36,15 @@ public class PedidoDTO {
                 pedido.getFuncionario().getId(),
                 pedido.getProduto().getIdProduto(),
                 pedido.getQuantidade(),
-                pedido.getStatus()
+                pedido.getStatus(),
+                pedido.getPeriodo(),
+                pedido.getIdPeriodo().getId()
         );
+    }
+
+    public long getIdPeriodo() {
+
+        return idPeriodo;
     }
 
     public long getId() {
@@ -73,6 +87,18 @@ public class PedidoDTO {
         this.status = status;
     }
 
+    public LocalDate getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(LocalDate periodo) {
+        this.periodo = periodo;
+    }
+
+    public void setIdPeriodo(long idPeriodo) {
+        this.idPeriodo = idPeriodo;
+    }
+
     @Override
     public String toString() {
         return "PedidoDTO{" +
@@ -81,6 +107,8 @@ public class PedidoDTO {
                 ", produtos=" + produtos +
                 ", quantidade=" + quantidade +
                 ", status='" + status + '\'' +
+                ", periodo=" + periodo +
+                ", idPeriodo=" + idPeriodo +
                 '}';
     }
 }

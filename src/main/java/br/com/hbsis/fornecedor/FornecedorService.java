@@ -49,19 +49,19 @@ public class FornecedorService {
         boolean valida = false;
         String forne = String.valueOf(fornecedorDTO.getCnpj());
         String telefoneN = fornecedorDTO.getTelefone();
-        for(int i = 0; i < forne.length(); ++i) {
+        for (int i = 0; i < forne.length(); ++i) {
             char ch = forne.charAt(i);
-            if(!(ch >= '0' && ch <= '9')){
+            if (!(ch >= '0' && ch <= '9')) {
                 valida = true;
             }
 
         }
 
-        if(valida == true){
+        if (valida == true) {
             throw new IllegalArgumentException("Caracteres não permitidos.");
         }
 
-        if(forne.length() != 14){
+        if (forne.length() != 14) {
             long valor = forne.length();
             throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 14! Você está colocando %s", valor));
         }
@@ -69,23 +69,23 @@ public class FornecedorService {
         //Validação Telefone, se tem 13 caracteres e se são números.
 
         boolean validaCel = false;
-        for(int i = 0; i < telefoneN.length(); ++i) {
+        for (int i = 0; i < telefoneN.length(); ++i) {
             char ch = telefoneN.charAt(i);
-            if(!(ch >= '0' && ch <= '9')){
+            if (!(ch >= '0' && ch <= '9')) {
                 validaCel = true;
             }
         }
 
-        if (validaCel == true){
+        if (validaCel == true) {
             throw new IllegalArgumentException("Caracteres não permitidos.");
         }
 
-        if(telefoneN.length() != 13){
+        if (telefoneN.length() != 13) {
             long valorT = telefoneN.length();
             throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 13! Você está colocando %s", valorT));
         }
 
-        }
+    }
 
     public Fornecedor findByFornecedorCnpj(String cnpj) {
         Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findByCnpj(cnpj);
@@ -97,26 +97,25 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", cnpj));
     }
 
-
     public FornecedorDTO findById(Long id) {
-            Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findById(id);
+        Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findById(id);
 
-            if (fornecedorOptional.isPresent()) {
-                Fornecedor fornecedor = fornecedorOptional.get();
-                return FornecedorDTO.of(fornecedor);
-            }
-
-            throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public Fornecedor findIdFornecedor (Long id){
-        Optional<Fornecedor> fornecedorOptional1 = this.fornecedorRepository.findById(id);
-
-        if (fornecedorOptional1.isPresent()) {
-            return fornecedorOptional1.get();
+        if (fornecedorOptional.isPresent()) {
+            Fornecedor fornecedor = fornecedorOptional.get();
+            return FornecedorDTO.of(fornecedor);
         }
 
-        throw new IllegalArgumentException(String.format("Fornecedor não existe: %s", id));
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public Fornecedor findByFornecedorId(Long id) {
+        Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findById(id);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s don't exist", id));
     }
 
     public String formatarCnpj(String cnpj) {

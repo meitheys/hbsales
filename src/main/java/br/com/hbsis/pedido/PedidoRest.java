@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
 @RestController
 @RequestMapping("/pedido")
 public class PedidoRest {
@@ -32,9 +35,6 @@ public class PedidoRest {
 
     @PutMapping("/{id}")
     public PedidoDTO update(@PathVariable("id") Long id, @RequestBody PedidoDTO pedidoDTO) {
-        LOGGER.info("Alterando pedido com id: {}", id);
-        LOGGER.info("Payload: {}", pedidoDTO);
-
         return this.pedidoService.update(pedidoDTO, id);
     }
 
@@ -43,6 +43,39 @@ public class PedidoRest {
         LOGGER.info("Deletando pedido com id: {}", id);
 
         this.pedidoService.delete(id);
+    }
+
+    @GetMapping("/exportPorFornecedor/{id}")
+    public void exportFornecedorCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
+        pedidoService.findFornecedor(httpServletResponse, id);
+    }
+
+    @GetMapping("/exportPorFuncionario/{id}")
+    public void exportFuncionarioCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
+        pedidoService.findAllPeriodoVendas(httpServletResponse, id);
+    }
+
+    @GetMapping
+    public String enviar(@RequestBody Pedido pedido) {
+        LOGGER.info("Enviando email...");
+        return this.pedidoService.enviar(pedido);
+    }
+
+    @GetMapping("/funcionario/{id}")
+    public List<PedidoDTO> findAll(@PathVariable Long id) {
+        return this.pedidoService.findAllByFornecedorId(id);
+    }
+
+    @PutMapping("/cancelar/{id}")
+    public void cancelar(@PathVariable("id") Long id) {
+        LOGGER.info("Cancelando...");
+        this.pedidoService.cancelar(id);
+    }
+
+    @PutMapping("/retirar/{id}")
+    public void retirar(@PathVariable("id") Long id) {
+        LOGGER.info("Retirando...");
+        this.pedidoService.retirar(id);
     }
 
 }

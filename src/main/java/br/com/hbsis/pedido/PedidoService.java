@@ -1,26 +1,48 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
+import br.com.hbsis.periodo.Periodo;
+import br.com.hbsis.periodo.PeriodoService;
 import br.com.hbsis.produto.ProdutoService;
+import com.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
+import com.opencsv.ICSVWriter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.swing.text.html.Option;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PedidoService {
 
+    @Autowired
+    private JavaMailSender mailSender;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoService.class);
     private IPedidoRepository iPedidoRepository;
     private FuncionarioService funcionarioService;
     private ProdutoService produtoService;
+    private PeriodoService periodoService;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService){
+    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService) {
         this.iPedidoRepository = iPedidoRepository;
         this.funcionarioService = funcionarioService;
         this.produtoService = produtoService;
+        this.periodoService = periodoService;
     }
 
     public PedidoDTO save(PedidoDTO pedidoDTO){
@@ -30,16 +52,67 @@ public class PedidoService {
         LOGGER.debug("Pedido {}", pedidoDTO);
 
         Pedido pedido = new Pedido();
-        pedido.setId(pedidoDTO.getId());
+        pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
         pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
         pedido.setQuantidade(pedidoDTO.getQuantidade());
         pedido.setStatus(pedidoDTO.getStatus());
-        pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
+        pedido.setPeriodo(LocalDate.now());
+        pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
+        this.enviar(pedido);
         pedido = this.iPedidoRepository.save(pedido);
 
         System.out.println(pedido);
 
         return pedidoDTO.of(pedido);
+    }
+
+    public String enviar(Pedido pedido) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("Compra feita! =)");
+        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
+                + " Você comprou " + pedido.getProduto().getNomeProduto() + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
+                + "\r\n"
+                + "\r\n"
+                + "HBSIS - Soluções em TI" + "\r\n"
+                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
+                + "(47) 2123-5400");
+
+        message.setTo(pedido.getFuncionario().getEmail());
+        message.setFrom("math.furtadonn1ptv@gmail.com");
+
+        try {
+            mailSender.send(message);
+            return "Email enviado com sucesso!";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao enviar email.";
+        }
+    }
+
+    public String enviarAtualizacao(Pedido pedido) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("Pedido Atualizado! =)");
+        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
+                + " Seu pedido " + pedido.getProduto().getNomeProduto() + ", gostariamos de lembrar que a sua data de retirada será em " + pedido.getIdPeriodo().getRetirada()
+                + "\r\n"
+                + "\r\n"
+                + "HBSIS - Soluções em TI" + "\r\n"
+                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
+                + "(47) 2123-5400");
+
+        message.setTo(pedido.getFuncionario().getEmail());
+        message.setFrom("math.furtadonn1ptv@gmail.com");
+
+        try {
+            mailSender.send(message);
+            return "Email enviado com sucesso!";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao enviar email.";
+        }
+
     }
 
     private void validate(PedidoDTO pedidoDTO) {
@@ -70,27 +143,81 @@ public class PedidoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public PedidoDTO update(PedidoDTO pedidoDTO, Long id) {
-        Optional<Pedido> pedidoOptionald = this.iPedidoRepository.findById(id);
+    public Pedido findById2(Long id) {
+        Optional<Pedido> pedidoOptional = this.iPedidoRepository.findById(id);
 
-        if (pedidoOptionald.isPresent()) {
-            Pedido pedidoOptional = pedidoOptionald.get();
-
-            LOGGER.info("Atualizando Produto... id: [{}]", pedidoDTO.getId());
-            LOGGER.debug("Payload: {}", pedidoDTO);
-            LOGGER.debug("Produto já existe: {}", pedidoOptional);
-
-            pedidoOptional.setFuncionario(pedidoOptional.getFuncionario());
-            pedidoOptional.setProduto(pedidoOptional.getProduto());
-            pedidoOptional.setQuantidade(pedidoOptional.getQuantidade());
-            pedidoOptional.setStatus(pedidoOptional.getStatus());
-            pedidoOptional = this.iPedidoRepository.save(pedidoOptional);
-
-            return PedidoDTO.of(pedidoOptional);
+        if (pedidoOptional.isPresent()) {
+            Pedido pedido = pedidoOptional.get();
+            return pedidoOptional.get();
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
+
+    public void validarUpdate(PedidoDTO pedidoDTO, Long id){
+        Pedido pedido = new Pedido();
+        pedido = findById2(id);
+
+        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getFuncionario()))) {
+            throw new IllegalArgumentException("Favor informar o funcionario");
+        }
+        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getProdutos()))) {
+            throw new IllegalArgumentException("Favor informar o produto");
+        }
+        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getQuantidade()))) {
+            throw new IllegalArgumentException("Favor informar a quantidade");
+        }
+        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getStatus()))) {
+            throw new IllegalArgumentException("Favor informar o status");
+        }
+        if (!pedido.getStatus().equals("Ativo")) {
+            throw new IllegalArgumentException("Este pedido já foi cancelado/retirado!");
+        }
+    }
+
+    public PedidoDTO update(PedidoDTO pedidoDTO, Long id) {
+        Optional<Pedido> optionalPeriodoVendas = this.iPedidoRepository.findById(id);
+        this.validarUpdate(pedidoDTO, id);
+
+        if (optionalPeriodoVendas.isPresent()) {
+            Pedido pedido = optionalPeriodoVendas.get();
+
+            LOGGER.info("Updating PeriodoVendas... id: [{}]", pedido.getId());
+            LOGGER.debug("Payload: {}", pedidoDTO);
+
+            pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
+            pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
+            pedido.setQuantidade(pedidoDTO.getQuantidade());
+            pedido.setStatus(pedidoDTO.getStatus());
+            pedido.setPeriodo(LocalDate.now());
+            pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
+            this.enviarAtualizacao(pedido);
+            pedido = this.iPedidoRepository.save(pedido);
+
+            return pedidoDTO.of(pedido);
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public void cancelar(Long id){
+        LOGGER.info("Cancelando pedido, id: [{}]", id);
+        Pedido pedido = this.findById2(id);
+
+        if(pedido.getStatus().equalsIgnoreCase("Ativo")) {
+            pedido.setStatus("Cancelado");
+            this.iPedidoRepository.save(pedido);
+            LOGGER.info("Cancelado!");
+        }
+    }
+
+    public void retirar(Long id){
+        LOGGER.info("Retirando pedido, id: [{}]", id);
+        Pedido pedido = this.findById2(id);
+
+            pedido.setStatus("Retirado");
+            this.iPedidoRepository.save(pedido);
+            LOGGER.info("Cancelado!");
+        }
 
     public void delete(Long id) {
         LOGGER.info("Executando delete para pedido de ID: [{}]", id);
@@ -98,6 +225,100 @@ public class PedidoService {
         this.iPedidoRepository.deleteById(id);
     }
 
+    public void findFornecedor(HttpServletResponse httpservletresponse, Long id) {
+        try {
+            String file = "pedidosPorFornecedor.csv";
+
+            httpservletresponse.setContentType("text/csv");
+
+            httpservletresponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file + "\"");
+
+            PrintWriter printwriter = httpservletresponse.getWriter();
+
+            ICSVWriter icsvwriter = new CSVWriterBuilder(printwriter).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
+
+            String headCVS[] = {"nome_produto", "quantidade", "razao"};
+
+            icsvwriter.writeNext(headCVS);
+
+            Periodo periodo;
+            periodo = periodoService.findByPeriodoId(id);
+
+            List<Pedido> pedidos;
+
+            pedidos = iPedidoRepository.findByPeriodo(periodo);
+
+            for (Pedido pedido : pedidos) {
+                icsvwriter.writeNext(new String[]{
+                        pedido.getProduto().getNomeProduto(),
+                        String.valueOf(pedido.getQuantidade()),
+                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao()
+
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void findAllPeriodoVendas(HttpServletResponse httpservletresponse, Long id) {
+        try {
+            String file = "pedidosPorFuncionario.csv";
+
+            httpservletresponse.setContentType("text/csv");
+
+            httpservletresponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file + "\"");
+
+            PrintWriter printwriter = httpservletresponse.getWriter();
+
+            ICSVWriter icsvwriter = new CSVWriterBuilder(printwriter).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
+
+            String headCVS[] = {"funcionario", "produto", "quantidade", "razao/cnpj"};
+
+            icsvwriter.writeNext(headCVS);
+
+            Funcionario funcionario;
+            funcionario = funcionarioService.findByFuncionarioId(id);
+
+            List<Pedido> pedidos;
+
+            pedidos = iPedidoRepository.findByFuncionario(funcionario);
+
+            for (Pedido pedido : pedidos) {
+                icsvwriter.writeNext(new String[]{
+                        pedido.getFuncionario().getNomeFuncionario(),
+                        pedido.getProduto().getNomeProduto(),
+                        String.valueOf(pedido.getQuantidade()),
+                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao() + "/" + pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getCnpj()
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<PedidoDTO> findAllByFornecedorId(Long id) {
+        LOGGER.info("Buscando pedidos do funcionario: [{}]", id);
+
+        //Listando pedido por findAll no Repository, o find all no repositorio está botando tudo em uma list
+        List<Pedido> listaPedido = this.iPedidoRepository.findAllByFuncionarioId(id);
+
+        //Bota o PedidoDTO em uma array
+        List<PedidoDTO> ListaPedidoDTO = new ArrayList<>();
+
+        //FOR EACH
+        PedidoDTO pedidoDTO = new PedidoDTO();
+        if (pedidoDTO.getStatus() != "Cancelado") {
+            for (Pedido pedido : listaPedido) {
+                ListaPedidoDTO.add(PedidoDTO.of(pedido));
+                LOGGER.info("Pedidos");
+            }
+
+        }
+        return ListaPedidoDTO;
+    }
+
 
 
 }
+

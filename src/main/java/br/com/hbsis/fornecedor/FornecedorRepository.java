@@ -12,10 +12,11 @@ import java.util.Optional;
 @Repository
 public interface FornecedorRepository extends JpaRepository<Fornecedor, Long> {
 
-    @Override
-    boolean existsById(Long idFornecedor);
+    boolean existsById(long id);
 
     boolean existsByCnpj(String cnpj);
     Optional<Fornecedor> findByCnpj(String cnpj);
+
+
 
 }

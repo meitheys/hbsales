@@ -29,7 +29,7 @@ public class PeriodoDTO {
     public static PeriodoDTO of(Periodo periodo) {
         return new PeriodoDTO(
                 periodo.getId(),
-                periodo.getIdFornecedor(),
+                periodo.getIdFornecedor().getIdFornecedor(),
                 periodo.getData_inicial(),
                 periodo.getData_final(),
                 periodo.getRetirada()

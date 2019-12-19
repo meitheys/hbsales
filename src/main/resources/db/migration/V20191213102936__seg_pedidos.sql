@@ -4,6 +4,8 @@ CREATE TABLE seg_pedidos
     id_funcionario BIGINT REFERENCES seg_funcionario (id),
     produtos BIGINT REFERENCES seg_produtos (id),
     quantidade BIGINT,
-    status VARCHAR(10)
+    status VARCHAR(10),
+    periodo DATE,
+    id_periodo BIGINT REFERENCES seg_periodo (id)
 );
 

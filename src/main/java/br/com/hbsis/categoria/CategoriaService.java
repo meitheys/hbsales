@@ -34,7 +34,7 @@ public class CategoriaService {
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
         this.validate(categoriaDTO);
 
-        Fornecedor fornecedorDTO = fornecedorService.findIdFornecedor(categoriaDTO.getFornecedor());
+        Fornecedor fornecedorDTO = fornecedorService.findByFornecedorId(categoriaDTO.getFornecedor());
 
         LOGGER.info("Salvando categoria...");
         LOGGER.debug("Categoria: {}", categoriaDTO);
@@ -51,7 +51,7 @@ public class CategoriaService {
 
         categoria.setCodigoCategoria(fim);
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-        categoria.setFornecedor(fornecedorService.findIdFornecedor(categoriaDTO.getFornecedor()));
+        categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getFornecedor()));
 
         categoria = this.iCategoriaRepository.save(categoria);
 
@@ -223,7 +223,7 @@ public class CategoriaService {
 
                 categoria.setCodigoCategoria(dados[0]);
                 categoria.setNomeCategoria((dados[2]));
-                Fornecedor fornecedor = fornecedorService.findIdFornecedor(Long.parseLong(dados[1]));
+                Fornecedor fornecedor = fornecedorService.findByFornecedorId(Long.parseLong(dados[1]));
                 categoria.setFornecedor(fornecedor);
 
                 resultado.add(categoria);
