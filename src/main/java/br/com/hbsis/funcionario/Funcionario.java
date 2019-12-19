@@ -14,6 +14,16 @@ public class Funcionario {
     private String nomeFuncionario;
     @Column(name = "email")
     private String email;
+    @Column(name = "uuid")
+    private String uuid;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public long getId() {
         return id;
@@ -45,6 +55,7 @@ public class Funcionario {
                 "id=" + id +
                 ", nomeFuncionario='" + nomeFuncionario + '\'' +
                 ", email='" + email + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 }

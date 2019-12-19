@@ -2,8 +2,33 @@ package br.com.hbsis.funcionario;
 
 public class FuncionarioDTO {
     private long id;
-    private String nomeFuncionario;
+    private String nome;
     private String email;
+    private String uuid;
+
+    public FuncionarioDTO(long id, String nome, String email, String uuid){
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+        this.uuid = uuid;
+    }
+
+    public static FuncionarioDTO of(Funcionario funcionario) {
+        return new FuncionarioDTO(
+                funcionario.getId(),
+                funcionario.getNomeFuncionario(),
+                funcionario.getEmail(),
+                funcionario.getUuid()
+        );
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public long getId() {
         return id;
@@ -13,12 +38,12 @@ public class FuncionarioDTO {
         this.id = id;
     }
 
-    public String getNomeFuncionario() {
-        return nomeFuncionario;
+    public String getNome() {
+        return nome;
     }
 
-    public void setNomeFuncionario(String nomeFuncionario) {
-        this.nomeFuncionario = nomeFuncionario;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getEmail() {
@@ -29,26 +54,13 @@ public class FuncionarioDTO {
         this.email = email;
     }
 
-    public FuncionarioDTO(long id, String nomeFuncionario, String email){
-        this.id = id;
-        this.nomeFuncionario = nomeFuncionario;
-        this.email = email;
-    }
-
-    public static FuncionarioDTO of(Funcionario funcionario) {
-        return new FuncionarioDTO(
-                funcionario.getId(),
-                funcionario.getNomeFuncionario(),
-                funcionario.getEmail()
-        );
-    }
-
     @Override
     public String toString() {
         return "FuncionarioDTO{" +
                 "id=" + id +
-                ", nomeFuncionario='" + nomeFuncionario + '\'' +
+                ", nomeFuncionario='" + nome + '\'' +
                 ", email='" + email + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 }

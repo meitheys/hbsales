@@ -1,0 +1,1 @@
+ALTER TABLE seg_funcionario ADD uuid VARCHAR (36);
