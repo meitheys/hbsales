@@ -2,8 +2,12 @@ package br.com.hbsis.funcionario;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -12,7 +16,7 @@ public class FuncionarioService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncionarioService.class);
     private IFuncionarioRepository iFuncionarioRepository;
 
-    public FuncionarioService(IFuncionarioRepository iFuncionarioRepository){
+    public FuncionarioService(IFuncionarioRepository iFuncionarioRepository) {
         this.iFuncionarioRepository = iFuncionarioRepository;
     }
 
@@ -23,9 +27,9 @@ public class FuncionarioService {
         LOGGER.debug("Funcionario {}", funcionarioDTO);
 
         Funcionario funcionario = new Funcionario();
-        funcionario.setId(funcionarioDTO.getId());
         funcionario.setEmail(funcionarioDTO.getEmail());
-        funcionario.setNomeFuncionario(funcionarioDTO.getNomeFuncionario());
+        funcionario.setUuid(funcionarioDTO.getUuid());
+        funcionario.setNomeFuncionario(funcionarioDTO.getNome());
         funcionario = this.iFuncionarioRepository.save(funcionario);
 
         return funcionarioDTO.of(funcionario);
@@ -34,8 +38,12 @@ public class FuncionarioService {
     private void validate(FuncionarioDTO funcionarioDTO) {
         LOGGER.info("Validando funcionario");
 
-        if(funcionarioDTO == null)
+        if (funcionarioDTO == null) {
             throw new IllegalArgumentException("Funcionario nulo!");
+        }
+        this.hbEmplyeeAdminFuncionario(funcionarioDTO);
+
+
     }
 
     public Funcionario findByFuncionarioId(Long id) {
@@ -48,6 +56,16 @@ public class FuncionarioService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    private void hbEmplyeeAdminFuncionario(FuncionarioDTO funcionarioDTO) {
+        RestTemplate template = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "f59fec50-1b67-11ea-978f-2e728ce88125");
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity httpEntity = new HttpEntity(funcionarioDTO, headers);
+        ResponseEntity<EmployeeSavingDTO> response = template.exchange("http://10.2.54.25:9999/api/employees", HttpMethod.POST, httpEntity, EmployeeSavingDTO.class);
+        funcionarioDTO.setUuid(Objects.requireNonNull(response.getBody()).getEmployeeUuid());
+        funcionarioDTO.setNome(response.getBody().getEmployeeName());
+    }
 
     public FuncionarioDTO findById(Long id) {
         Optional<Funcionario> funcionarioOptional = this.iFuncionarioRepository.findById(id);
@@ -60,10 +78,10 @@ public class FuncionarioService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public FuncionarioDTO findFuncionario(Long id){
+    public FuncionarioDTO findFuncionario(Long id) {
         Optional<Funcionario> funcionarioSecundario = this.iFuncionarioRepository.findById(id);
 
-        if(funcionarioSecundario.isPresent()) {
+        if (funcionarioSecundario.isPresent()) {
             return FuncionarioDTO.of(funcionarioSecundario.get());
         }
 
@@ -71,16 +89,16 @@ public class FuncionarioService {
 
     }
 
-    public FuncionarioDTO update(FuncionarioDTO funcionarioDTO, Long id){
+    public FuncionarioDTO update(FuncionarioDTO funcionarioDTO, Long id) {
         Optional<Funcionario> funcionarioSecundarioExiste = this.iFuncionarioRepository.findById(id);
 
-        if(funcionarioSecundarioExiste.isPresent()) {
+        if (funcionarioSecundarioExiste.isPresent()) {
             Funcionario funcionarioExiste = funcionarioSecundarioExiste.get();
 
             LOGGER.info("Atualizando funcionario, id: [{}]", funcionarioDTO.getId());
             LOGGER.debug("Payload: {}", funcionarioDTO);
 
-            funcionarioExiste.setNomeFuncionario(funcionarioDTO.getNomeFuncionario());
+            funcionarioExiste.setNomeFuncionario(funcionarioDTO.getNome());
             funcionarioExiste.setEmail(funcionarioDTO.getEmail());
             funcionarioExiste = this.iFuncionarioRepository.save(funcionarioExiste);
 
