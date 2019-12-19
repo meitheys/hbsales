@@ -25,7 +25,7 @@ public class FuncionarioService {
         Funcionario funcionario = new Funcionario();
         funcionario.setId(funcionarioDTO.getId());
         funcionario.setEmail(funcionarioDTO.getEmail());
-        funcionario.setNomeFuncionario(funcionarioDTO.getEmail());
+        funcionario.setNomeFuncionario(funcionarioDTO.getNomeFuncionario());
         funcionario = this.iFuncionarioRepository.save(funcionario);
 
         return funcionarioDTO.of(funcionario);

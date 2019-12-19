@@ -3,9 +3,11 @@ package br.com.hbsis.pedido;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioDTO;
+import br.com.hbsis.periodo.Periodo;
 import br.com.hbsis.produto.Produto;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "seg_pedidos")
@@ -25,6 +27,11 @@ public class Pedido {
     private long quantidade;
     @Column(name = "status")
     private String status;
+    @Column(name = "periodo")
+    private LocalDate periodo;
+    @ManyToOne
+    @JoinColumn(name = "id_periodo", referencedColumnName = "id")
+    private Periodo idPeriodo;
 
     public long getId() {
         return id;
@@ -66,6 +73,22 @@ public class Pedido {
         this.status = status;
     }
 
+    public LocalDate getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(LocalDate periodo) {
+        this.periodo = periodo;
+    }
+
+    public Periodo getIdPeriodo() {
+        return idPeriodo;
+    }
+
+    public void setIdPeriodo(Periodo idPeriodo) {
+        this.idPeriodo = idPeriodo;
+    }
+
     @Override
     public String toString() {
         return "Pedido{" +
@@ -74,6 +97,8 @@ public class Pedido {
                 ", produto=" + produto +
                 ", quantidade=" + quantidade +
                 ", status='" + status + '\'' +
+                ", periodo=" + periodo +
+                ", idPeriodo=" + idPeriodo +
                 '}';
     }
 }

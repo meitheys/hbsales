@@ -1,5 +1,7 @@
 package br.com.hbsis.periodo;
 
+import br.com.hbsis.fornecedor.Fornecedor;
+import br.com.hbsis.fornecedor.FornecedorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,29 @@ public class PeriodoService {
     public static Logger LOGGER = LoggerFactory.getLogger(PeriodoService.class);
 
     public IPeriodoRepository iPeriodoRepository;
+    private FornecedorService fornecedorService;
 
-    public PeriodoService(IPeriodoRepository iPeriodoRepository) {
+    public PeriodoService(IPeriodoRepository iPeriodoRepository, FornecedorService fornecedorService) {
         this.iPeriodoRepository = iPeriodoRepository;
+        this.fornecedorService = fornecedorService;
+    }
+
+    public PeriodoDTO save(PeriodoDTO periodoDTO) {
+        this.validate(periodoDTO);
+        LOGGER.info("Salvando periodo...");
+
+        Periodo periodo = new Periodo();
+
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor = fornecedorService.findByFornecedorId(periodoDTO.getIdFornecedor());
+        periodo.setIdFornecedor(fornecedor);
+        periodo.setData_final(periodoDTO.getData_final());
+        periodo.setData_inicial(periodoDTO.getData_final());
+        periodo.setRetirada(periodoDTO.getRetirada());
+
+        periodo = this.iPeriodoRepository.save(periodo);
+
+        return periodoDTO.of(periodo);
     }
 
     public PeriodoDTO findById(Long id) {
@@ -35,23 +57,6 @@ public class PeriodoService {
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public PeriodoDTO save(PeriodoDTO periodoDTO) {
-        this.validate(periodoDTO);
-        LOGGER.info("Salvando periodo...");
-
-        Periodo periodo = new Periodo();
-
-        periodo.setData_final(periodoDTO.getData_final());
-        periodo.setData_inicial(periodoDTO.getData_final());
-        periodo.setId(periodoDTO.getId());
-        periodo.setIdFornecedor(periodoDTO.getIdFornecedor());
-        periodo.setRetirada(periodoDTO.getRetirada());
-
-        periodo = this.iPeriodoRepository.save(periodo);
-
-        return periodoDTO.of(periodo);
     }
 
     public void validate(PeriodoDTO periodoDTO) {
@@ -77,7 +82,7 @@ public class PeriodoService {
             LOGGER.debug("Payload: {}", periodoDTO);
 
             periodo.setRetirada(periodoDTO.getRetirada());
-            periodo.setIdFornecedor(periodoDTO.getIdFornecedor());
+            periodo.setIdFornecedor(fornecedorService.findByFornecedorId(periodoDTO.getIdFornecedor()));
             periodo.setData_inicial(periodoDTO.getData_inicial());
             periodo.setData_final(periodoDTO.getData_final());
 

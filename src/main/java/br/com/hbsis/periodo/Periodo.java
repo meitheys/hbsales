@@ -1,5 +1,7 @@
 package br.com.hbsis.periodo;
 
+import br.com.hbsis.fornecedor.Fornecedor;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
@@ -11,8 +13,9 @@ public class Periodo{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "id_fornecedor")
-    private long idFornecedor;
+    @ManyToOne
+    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id")
+    private Fornecedor idFornecedor;
     @Column(name = "data_inicial")
     private LocalDate data_inicial;
     @Column(name = "data_final")
@@ -28,11 +31,11 @@ public class Periodo{
         this.id = id;
     }
 
-    public long getIdFornecedor() {
+    public Fornecedor getIdFornecedor() {
         return idFornecedor;
     }
 
-    public void setIdFornecedor(long idFornecedor) {
+    public void setIdFornecedor(Fornecedor idFornecedor) {
         this.idFornecedor = idFornecedor;
     }
 
