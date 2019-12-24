@@ -43,7 +43,6 @@ public class FuncionarioService {
         }
         this.hbEmplyeeAdminFuncionario(funcionarioDTO);
 
-
     }
 
     public Funcionario findByFuncionarioId(Long id) {

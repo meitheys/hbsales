@@ -118,13 +118,6 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s don't exist", id));
     }
 
-    public String formatarCnpj(String cnpj) {
-        Fornecedor fornecedor = new Fornecedor();
-        String mask = fornecedor.getCnpj();
-        mask = (cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12, 14));
-        return mask;
-    }
-
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
         Optional<Fornecedor> fornecedorExisteOptional = this.fornecedorRepository.findById(id);
 

@@ -1,5 +1,6 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.email.Email;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.periodo.Periodo;
@@ -29,14 +30,14 @@ import java.util.Optional;
 @Service
 public class PedidoService {
 
-    @Autowired
-    private JavaMailSender mailSender;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoService.class);
     private IPedidoRepository iPedidoRepository;
     private FuncionarioService funcionarioService;
     private ProdutoService produtoService;
     private PeriodoService periodoService;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService) {
         this.iPedidoRepository = iPedidoRepository;
@@ -51,7 +52,9 @@ public class PedidoService {
         LOGGER.info("Salvando pedido");
         LOGGER.debug("Pedido {}", pedidoDTO);
 
+        Email email = new Email();
         Pedido pedido = new Pedido();
+
         pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
         pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
         pedido.setQuantidade(pedidoDTO.getQuantidade());
@@ -67,8 +70,8 @@ public class PedidoService {
     }
 
     public String enviar(Pedido pedido) {
-
         SimpleMailMessage message = new SimpleMailMessage();
+
         message.setSubject("Compra feita! =)");
         message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
                 + " Você comprou " + pedido.getProduto().getNomeProduto() + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
@@ -224,101 +227,6 @@ public class PedidoService {
 
         this.iPedidoRepository.deleteById(id);
     }
-
-    public void findFornecedor(HttpServletResponse httpservletresponse, Long id) {
-        try {
-            String file = "pedidosPorFornecedor.csv";
-
-            httpservletresponse.setContentType("text/csv");
-
-            httpservletresponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file + "\"");
-
-            PrintWriter printwriter = httpservletresponse.getWriter();
-
-            ICSVWriter icsvwriter = new CSVWriterBuilder(printwriter).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-            String headCVS[] = {"nome_produto", "quantidade", "razao"};
-
-            icsvwriter.writeNext(headCVS);
-
-            Periodo periodo;
-            periodo = periodoService.findByPeriodoId(id);
-
-            List<Pedido> pedidos;
-
-            pedidos = iPedidoRepository.findByPeriodo(periodo);
-
-            for (Pedido pedido : pedidos) {
-                icsvwriter.writeNext(new String[]{
-                        pedido.getProduto().getNomeProduto(),
-                        String.valueOf(pedido.getQuantidade()),
-                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao()
-
-                });
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void findAllPeriodoVendas(HttpServletResponse httpservletresponse, Long id) {
-        try {
-            String file = "pedidosPorFuncionario.csv";
-
-            httpservletresponse.setContentType("text/csv");
-
-            httpservletresponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file + "\"");
-
-            PrintWriter printwriter = httpservletresponse.getWriter();
-
-            ICSVWriter icsvwriter = new CSVWriterBuilder(printwriter).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-            String headCVS[] = {"funcionario", "produto", "quantidade", "razao/cnpj"};
-
-            icsvwriter.writeNext(headCVS);
-
-            Funcionario funcionario;
-            funcionario = funcionarioService.findByFuncionarioId(id);
-
-            List<Pedido> pedidos;
-
-            pedidos = iPedidoRepository.findByFuncionario(funcionario);
-
-            for (Pedido pedido : pedidos) {
-                icsvwriter.writeNext(new String[]{
-                        pedido.getFuncionario().getNomeFuncionario(),
-                        pedido.getProduto().getNomeProduto(),
-                        String.valueOf(pedido.getQuantidade()),
-                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao() + "/" + pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getCnpj()
-                });
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<PedidoDTO> findAllByFornecedorId(Long id) {
-        LOGGER.info("Buscando pedidos do funcionario: [{}]", id);
-
-        //Listando pedido por findAll no Repository, o find all no repositorio está botando tudo em uma list
-        List<Pedido> listaPedido = this.iPedidoRepository.findAllByFuncionarioId(id);
-
-        //Bota o PedidoDTO em uma array
-        List<PedidoDTO> ListaPedidoDTO = new ArrayList<>();
-
-        //FOR EACH
-        PedidoDTO pedidoDTO = new PedidoDTO();
-        if (pedidoDTO.getStatus() != "Cancelado") {
-            for (Pedido pedido : listaPedido) {
-                ListaPedidoDTO.add(PedidoDTO.of(pedido));
-                LOGGER.info("Pedidos");
-            }
-
-        }
-        return ListaPedidoDTO;
-    }
-
-
 
 }
 

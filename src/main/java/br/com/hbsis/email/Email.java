@@ -1,33 +1,35 @@
 package br.com.hbsis.email;
 
+import br.com.hbsis.pedido.Pedido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
-@RestController
 public class Email {
+    @Autowired
+    private JavaMailSender mailSender;
 
-    @Autowired private JavaMailSender mailSender;
-
-    @RequestMapping(path = "/email-send", method = RequestMethod.GET)
-    public String enviarEmail() {
+    public void enviar(Pedido pedido) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Hello");
-        message.setText("<p>Hello from Spring Boot Application</p>");
-        message.setTo("matheus.furtado@hbsis.com.br");
-        message.setFrom("math.furtadonn1ptv@gmail.com");
 
+        message.setSubject("Compra feita! =)");
+        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
+                + " Você comprou " + pedido.getProduto().getNomeProduto() + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
+                + "\r\n"
+                + "\r\n"
+                + "HBSIS - Soluções em TI" + "\r\n"
+                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
+                + "(47) 2123-5400");
+        message.setTo(pedido.getFuncionario().getEmail());
+        message.setFrom("math.furtadonn1ptv@gmail.com");
         try {
             mailSender.send(message);
-            return "Email enviado com sucesso!";
         } catch (Exception e) {
             e.printStackTrace();
-            return "Erro ao enviar email.";
         }
     }
-
 }

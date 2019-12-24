@@ -1,21 +1,12 @@
 package br.com.hbsis.linhaCategoria;
 
-import br.com.hbsis.categoria.Categoria;
 import br.com.hbsis.categoria.CategoriaService;
-import br.com.hbsis.categoria.ICategoriaRepository;
-import com.opencsv.*;
+import br.com.hbsis.validacoes.StringValidations;
 import freemarker.template.utility.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,13 +15,12 @@ public class LinhaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhaService.class);
     private final ILinhaRepository iLinhaRepository;
     private final CategoriaService categoriaService;
-    private final ICategoriaRepository iCategoriaRepository;
+    private final StringValidations stringValidations;
 
-
-    public LinhaService(ILinhaRepository iLinhaRepository, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
+    public LinhaService(ILinhaRepository iLinhaRepository, CategoriaService categoriaService, StringValidations stringValidations) {
         this.iLinhaRepository = iLinhaRepository;
         this.categoriaService = categoriaService;
-        this.iCategoriaRepository = iCategoriaRepository;
+        this.stringValidations = stringValidations;
     }
 
     public LinhaDTO save(LinhaDTO linhaDTO) {
@@ -42,7 +32,7 @@ public class LinhaService {
         Linha linha = new Linha();
         linha.setNomeLinha(linhaDTO.getNomeLinha());
         linha.setCategoriaLinha(categoriaService.existsByCategoriaLinha(linhaDTO.getCategoriaLinha()));
-        linha.setCodigoLinha(zeroAEsquerda(linhaDTO.getCodigoLinha().toUpperCase()));
+        linha.setCodigoLinha(stringValidations.zeroAEsquerda(linhaDTO.getCodigoLinha().toUpperCase()));
 
         linha = this.iLinhaRepository.save(linha);
 
@@ -79,19 +69,19 @@ public class LinhaService {
         throw new IllegalArgumentException(String.format("codigo Linha  %s não existe", codigoLinha));
     }
 
-    public LinhaDTO findLinha(Long codigo_linha) {
-        Optional<Linha> linhaSecundaria = this.iLinhaRepository.findById(codigo_linha);
+    public LinhaDTO findLinha(Long codigoLinha) {
+        Optional<Linha> linhaSecundaria = this.iLinhaRepository.findById(codigoLinha);
 
         if (linhaSecundaria.isPresent()) {
             return LinhaDTO.of(linhaSecundaria.get());
         }
 
         // '%s' serve como uma marcação para quando der 'String.format', que aloca a variavel que contém o conteúdo.
-        throw new IllegalArgumentException(String.format("ID %s não existe", codigo_linha));
+        throw new IllegalArgumentException(String.format("ID %s não existe", codigoLinha));
     }
 
-    public LinhaDTO update(LinhaDTO linhaDTO, Long codigo_linha) {
-        Optional<Linha> linhaSecundariaExiste = this.iLinhaRepository.findById(codigo_linha);
+    public LinhaDTO update(LinhaDTO linhaDTO, Long codigoLinha) {
+        Optional<Linha> linhaSecundariaExiste = this.iLinhaRepository.findById(codigoLinha);
 
         if (linhaSecundariaExiste.isPresent()) {
             Linha linhaExistente = linhaSecundariaExiste.get();
@@ -108,78 +98,12 @@ public class LinhaService {
             return linhaDTO.of(linhaExistente);
         }
 
-        throw new IllegalArgumentException(String.format("ID %s não existe", codigo_linha));
+        throw new IllegalArgumentException(String.format("ID %s não existe", codigoLinha));
     }
 
-    public void delete(Long codigo_linha){
-        LOGGER.info("Executand odelete na linha: [{}]", codigo_linha);
+    public void delete(Long codigoLinha){
+        LOGGER.info("Executand odelete na linha: [{}]", codigoLinha);
 
-        this.iLinhaRepository.deleteById(codigo_linha);
+        this.iLinhaRepository.deleteById(codigoLinha);
     }
-
-    public String zeroAEsquerda(String zero){
-        String zerinho = StringUtil.leftPad(zero, 10, "0");
-
-        return zerinho;
-    }
-
-    //Excel ---------------
-
-
-
-    public void findAll(HttpServletResponse resposta) throws Exception {
-        String arquivo = "linha.csv";
-        resposta.setContentType("text/csv");
-        resposta.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo + "\"");
-
-        PrintWriter escritor = resposta.getWriter();
-
-        ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-        String[] tituloCSV = {"nome_linha", "codigo_linha", "codigo_categoria", "nome_categoria" };
-        icsvWriter.writeNext(tituloCSV);
-
-        for (Linha linhas : iLinhaRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{linhas.getNomeLinha(), linhas.getCodigoLinha(), String.valueOf(linhas.getCategoriaLinha().getCodigoCategoria()), linhas.getCategoriaLinha().getNomeCategoria()});
-        }
-    }
-
-    public List<Linha> leitorTotal(MultipartFile importacao) throws Exception {
-        InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
-
-        //Perguntar
-        CSVReader leitor = new CSVReaderBuilder(insercao).withSkipLines(1).build();
-
-        List<String[]> linhaS = leitor.readAll();
-        List<Linha> resultado = new ArrayList<>();
-
-        for (String[] linha : linhaS) {
-
-            try {
-
-                //Quebrando o arquivo CSV em valores.
-
-                String[] dados = linha[0].replaceAll("\"", "").split(";");
-
-                Linha linhaclasse = new Linha();
-                Categoria cat = new Categoria();
-
-
-                linhaclasse.setNomeLinha((dados[0]));
-                linhaclasse.setCodigoLinha(dados[1]);
-                cat.setCodigoCategoria(dados[2]);
-                cat.setNomeCategoria(dados[3]);
-
-                resultado.add(linhaclasse);
-                System.out.println(resultado);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-        }
-        return iLinhaRepository.saveAll(resultado);
-
-    }
-
-
 }
