@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping("/funcionario")
@@ -18,7 +20,7 @@ public class FuncionarioRest {
     }
 
     @PostMapping
-    public FuncionarioDTO save(@RequestBody FuncionarioDTO funcionarioDTO){
+    public FuncionarioDTO save(@RequestBody FuncionarioDTO funcionarioDTO) throws IOException {
         LOGGER.info("Recebendo save de funcionario...");
         LOGGER.debug("Payload: {}", funcionarioDTO);
 

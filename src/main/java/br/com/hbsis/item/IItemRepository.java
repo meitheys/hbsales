@@ -20,3 +20,4 @@ public interface IItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> findByPedidoAndProduto(Pedido pedido, Produto idProduto);
 
 }
+

@@ -33,9 +33,9 @@ public class InvoiceService {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
 
         invoiceDTO.setInvoiceItemDTOSet(itemPedidoService.findProdutosPedido(id));
-        invoiceDTO.setEmployeeUuid(pedido.getUuid());
-        invoiceDTO.setCnpjFornecedor(pedido.getFornecedor().getCnpj());
-        invoiceDTO.setTotalValue(itemPedidoService.totalPedido(id));
+        //invoiceDTO.setEmployeeUuid(pedido.getUuid());
+        //invoiceDTO.setCnpjFornecedor(pedido.getIdPeriod.getCnpj());
+        //invoiceDTO.setTotalValue(itemPedidoService.totalPedido(id));
 
         hbApiService.hbInvoice(invoiceDTO);
 
