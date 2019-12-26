@@ -12,20 +12,21 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_produto", referencedColumnName = "id")
-    private Produto idProduto;
+    private Produto produto;
     @Column(name = "quantidade")
     private long quantidade;
-    @Column(name = "item_name")
-    private String itemName;
+    @ManyToOne
+    @JoinColumn(name = "id_pedido", referencedColumnName = "id")
+    private Pedido pedido;
 
-    public String getItemName() {
-        return itemName;
+    public Pedido getPedido() {
+        return pedido;
     }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
     }
 
     public long getId() {
@@ -36,12 +37,12 @@ public class Item {
         this.id = id;
     }
 
-    public Produto getIdProduto() {
-        return idProduto;
+    public Produto getProduto() {
+        return produto;
     }
 
-    public void setIdProduto(Produto idProduto) {
-        this.idProduto = idProduto;
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 
     public long getQuantidade() {
@@ -56,9 +57,9 @@ public class Item {
     public String toString() {
         return "Item{" +
                 "id=" + id +
-                ", idProduto=" + idProduto +
+                ", idProduto=" + produto +
                 ", quantidade=" + quantidade +
-                ", itemName=" + itemName +
+                ", pedido=" + pedido +
                 '}';
     }
 }

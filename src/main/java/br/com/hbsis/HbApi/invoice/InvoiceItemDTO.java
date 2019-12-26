@@ -1,4 +1,6 @@
-package br.com.hbsis.item;
+package br.com.hbsis.HbApi.invoice;
+
+import br.com.hbsis.item.Item;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +16,7 @@ public class InvoiceItemDTO {
     }
 
     public static Set<InvoiceItemDTO> parseList(Set<Item> items) {
-        return items.stream().map(item -> new InvoiceItemDTO(item.getIdProduto().getNomeProduto(), item.getQuantidade())).collect(Collectors.toSet());
+        return items.stream().map(item -> new InvoiceItemDTO(item.getProduto().getNomeProduto(), item.getQuantidade())).collect(Collectors.toSet());
     }
 
     public int getAmount() {
@@ -31,5 +33,13 @@ public class InvoiceItemDTO {
 
     public void setItemName(String itemName) {
         this.itemName = itemName;
+    }
+
+    @Override
+    public String toString() {
+        return "InvoiceItemDTO{" +
+                "amount=" + amount +
+                ", itemName='" + itemName + '\'' +
+                '}';
     }
 }

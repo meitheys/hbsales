@@ -1,4 +1,6 @@
-package br.com.hbsis.item;
+package br.com.hbsis.HbApi.invoice;
+
+import br.com.hbsis.item.Item;
 
 import java.util.Set;
 
@@ -52,5 +54,15 @@ public class InvoiceDTO {
 
     public void setTotalValue(double totalValue) {
         this.totalValue = totalValue;
+    }
+
+    @Override
+    public String toString() {
+        return "InvoiceDTO{" +
+                "cnpjFornecedor='" + cnpjFornecedor + '\'' +
+                ", employeeUuid='" + employeeUuid + '\'' +
+                ", invoiceItemDTOSet=" + invoiceItemDTOSet +
+                ", totalValue=" + totalValue +
+                '}';
     }
 }

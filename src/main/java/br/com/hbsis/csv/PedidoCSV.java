@@ -66,9 +66,6 @@ public class PedidoCSV {
 
             for (Pedido pedido : pedidos) {
                 icsvwriter.writeNext(new String[]{
-                        pedido.getProduto().getNomeProduto(),
-                        String.valueOf(pedido.getQuantidade()),
-                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao()
 
                 });
             }
@@ -103,9 +100,6 @@ public class PedidoCSV {
             for (Pedido pedido : pedidos) {
                 icsvwriter.writeNext(new String[]{
                         pedido.getFuncionario().getNomeFuncionario(),
-                        pedido.getProduto().getNomeProduto(),
-                        String.valueOf(pedido.getQuantidade()),
-                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao() + "/" + pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getCnpj()
                 });
             }
         } catch (IOException e) {

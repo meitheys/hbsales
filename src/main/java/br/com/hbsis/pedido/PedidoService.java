@@ -3,6 +3,9 @@ package br.com.hbsis.pedido;
 import br.com.hbsis.email.Email;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
+import br.com.hbsis.item.Item;
+import br.com.hbsis.item.ItemDTO;
+import br.com.hbsis.item.ItemService;
 import br.com.hbsis.periodo.Periodo;
 import br.com.hbsis.periodo.PeriodoService;
 import br.com.hbsis.produto.ProdutoService;
@@ -13,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -35,15 +39,17 @@ public class PedidoService {
     private FuncionarioService funcionarioService;
     private ProdutoService produtoService;
     private PeriodoService periodoService;
+    private ItemService itemService;
 
     @Autowired
     private JavaMailSender mailSender;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService) {
+    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService, @Lazy  ItemService itemService) {
         this.iPedidoRepository = iPedidoRepository;
         this.funcionarioService = funcionarioService;
         this.produtoService = produtoService;
         this.periodoService = periodoService;
+        this.itemService = itemService;
     }
 
     public PedidoDTO save(PedidoDTO pedidoDTO){
@@ -54,17 +60,25 @@ public class PedidoService {
 
         Email email = new Email();
         Pedido pedido = new Pedido();
+        List<Item> listaDeitens = new ArrayList<>();
 
-        pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
-        pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
-        pedido.setQuantidade(pedidoDTO.getQuantidade());
-        pedido.setStatus(pedidoDTO.getStatus());
+        pedido.setCodPedido(pedidoDTO.getCodPedido());
         pedido.setPeriodo(LocalDate.now());
+        pedido.setStatus(pedidoDTO.getStatus());
+        pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
         pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
-        this.enviar(pedido);
+
         pedido = this.iPedidoRepository.save(pedido);
 
-        System.out.println(pedido);
+        for (ItemDTO itemDTO : pedidoDTO.getItemDTO()) {
+            Item item = new Item();
+            itemDTO.setPedido(pedido.getId());
+            itemService.save(itemDTO);
+            item.setProduto(produtoService.findByProdutoId(itemDTO.getProduto()));
+            item.setQuantidade(itemDTO.getQuantidade());
+            listaDeitens.add(item);
+        }
+//        email.enviar(pedido, listaDeitens);
 
         return pedidoDTO.of(pedido);
     }
@@ -74,7 +88,7 @@ public class PedidoService {
 
         message.setSubject("Compra feita! =)");
         message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Você comprou " + pedido.getProduto().getNomeProduto() + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
+                + " Você comprou " + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
                 + "\r\n"
                 + "\r\n"
                 + "HBSIS - Soluções em TI" + "\r\n"
@@ -98,7 +112,7 @@ public class PedidoService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject("Pedido Atualizado! =)");
         message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Seu pedido " + pedido.getProduto().getNomeProduto() + ", gostariamos de lembrar que a sua data de retirada será em " + pedido.getIdPeriodo().getRetirada()
+                + " Seu pedido " + ", gostariamos de lembrar que a sua data de retirada será em " + pedido.getIdPeriodo().getRetirada()
                 + "\r\n"
                 + "\r\n"
                 + "HBSIS - Soluções em TI" + "\r\n"
@@ -123,12 +137,6 @@ public class PedidoService {
 
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getFuncionario()))) {
             throw new IllegalArgumentException("Favor informar o funcionario");
-        }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getProdutos()))) {
-            throw new IllegalArgumentException("Favor informar o produto");
-        }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getQuantidade()))) {
-            throw new IllegalArgumentException("Favor informar a quantidade");
         }
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getStatus()))) {
             throw new IllegalArgumentException("Favor informar o status");
@@ -164,12 +172,6 @@ public class PedidoService {
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getFuncionario()))) {
             throw new IllegalArgumentException("Favor informar o funcionario");
         }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getProdutos()))) {
-            throw new IllegalArgumentException("Favor informar o produto");
-        }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getQuantidade()))) {
-            throw new IllegalArgumentException("Favor informar a quantidade");
-        }
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getStatus()))) {
             throw new IllegalArgumentException("Favor informar o status");
         }
@@ -189,12 +191,10 @@ public class PedidoService {
             LOGGER.debug("Payload: {}", pedidoDTO);
 
             pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
-            pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
-            pedido.setQuantidade(pedidoDTO.getQuantidade());
             pedido.setStatus(pedidoDTO.getStatus());
             pedido.setPeriodo(LocalDate.now());
             pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
-            this.enviarAtualizacao(pedido);
+
             pedido = this.iPedidoRepository.save(pedido);
 
             return pedidoDTO.of(pedido);

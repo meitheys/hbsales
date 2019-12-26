@@ -1,11 +1,14 @@
 package br.com.hbsis.funcionario;
 
+import br.com.hbsis.HbApi.HbApiService;
+import br.com.hbsis.HbApi.employee.EmployeeSavingDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,12 +18,14 @@ public class FuncionarioService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncionarioService.class);
     private IFuncionarioRepository iFuncionarioRepository;
+    private final HbApiService hbApiService;
 
-    public FuncionarioService(IFuncionarioRepository iFuncionarioRepository) {
+    public FuncionarioService(IFuncionarioRepository iFuncionarioRepository, HbApiService hbApiService) {
         this.iFuncionarioRepository = iFuncionarioRepository;
+        this.hbApiService = hbApiService;
     }
 
-    public FuncionarioDTO save(FuncionarioDTO funcionarioDTO) {
+    public FuncionarioDTO save(FuncionarioDTO funcionarioDTO) throws IOException {
         this.validate(funcionarioDTO);
 
         LOGGER.info("Salvando funcionario");
@@ -28,7 +33,7 @@ public class FuncionarioService {
 
         Funcionario funcionario = new Funcionario();
         funcionario.setEmail(funcionarioDTO.getEmail());
-        funcionario.setUuid(funcionarioDTO.getUuid());
+        funcionario.setUuid(hbApiService.hbUuidGenerator(funcionarioDTO.getUuid()));
         funcionario.setNomeFuncionario(funcionarioDTO.getNome());
         funcionario = this.iFuncionarioRepository.save(funcionario);
 
@@ -41,7 +46,6 @@ public class FuncionarioService {
         if (funcionarioDTO == null) {
             throw new IllegalArgumentException("Funcionario nulo!");
         }
-        this.hbEmplyeeAdminFuncionario(funcionarioDTO);
 
     }
 

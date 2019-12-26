@@ -64,12 +64,12 @@ public class CategoriaService {
         } else {
             System.out.println("Fornecedor: " + categoriaDTO.getFornecedor());
         }
-        System.out.println(categoriaDTO.getCodigo_categoria());
-        System.out.println(categoriaDTO.getNomeCategoria());
         if (StringUtils.isEmpty(categoriaDTO.getNomeCategoria())) {
             throw new IllegalArgumentException("Categoria não deve ser vazio!!");
         }
-
+        if (StringUtils.isEmpty(categoriaDTO.getCodigo_categoria())) {
+            throw new IllegalArgumentException("Codigo da Categoria não deve ser vazio!!");
+        }
     }
 
     public Categoria findByIdString(Long id) {

@@ -8,17 +8,18 @@ import org.springframework.mail.javamail.JavaMailSender;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.List;
 
 public class Email {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void enviar(Pedido pedido) {
+    public void enviar(Pedido pedido, List listaDeitens) {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setSubject("Compra feita! =)");
         message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Você comprou " + pedido.getProduto().getNomeProduto() + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
+                + " Você comprou " +  " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
                 + "\r\n"
                 + "\r\n"
                 + "HBSIS - Soluções em TI" + "\r\n"

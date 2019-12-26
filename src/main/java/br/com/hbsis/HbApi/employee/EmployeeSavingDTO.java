@@ -1,4 +1,4 @@
-package br.com.hbsis.funcionario;
+package br.com.hbsis.HbApi.employee;
 
 public class EmployeeSavingDTO {
 

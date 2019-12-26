@@ -3,34 +3,34 @@ package br.com.hbsis.item;
 public class ItemDTO {
 
     private long id;
-    private long idProduto;
+    private long produto;
+    private long pedido;
     private long quantidade;
-    private String itemName;
 
     public ItemDTO(){}
 
-    public ItemDTO(long id, long idProduto, long quantidade, String itemName) {
+    public ItemDTO(long id, long idProduto, long quantidade, long pedido) {
         this.id = id;
-        this.idProduto = idProduto;
+        this.pedido = pedido;
+        this.produto = idProduto;
         this.quantidade = quantidade;
-        this.itemName = itemName;
     }
 
     public static ItemDTO of(Item item) {
         return new ItemDTO(
                 item.getId(),
-                item.getIdProduto().getIdProduto(),
+                item.getProduto().getIdProduto(),
                 item.getQuantidade(),
-                item.getItemName()
+                item.getPedido().getId()
         );
     }
 
-    public String getItemName() {
-        return itemName;
+    public long getPedido() {
+        return pedido;
     }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
+    public void setPedido(long pedido) {
+        this.pedido = pedido;
     }
 
     public long getQuantidade() {
@@ -49,21 +49,21 @@ public class ItemDTO {
         this.id = id;
     }
 
-    public long getIdProduto() {
-        return idProduto;
+    public long getProduto() {
+        return produto;
     }
 
-    public void setIdProduto(long idProduto) {
-        this.idProduto = idProduto;
+    public void setProduto(long produto) {
+        this.produto = produto;
     }
 
     @Override
     public String toString() {
         return "ItemDTO{" +
                 "id=" + id +
-                ", idProduto=" + idProduto +
+                ", idProduto=" + produto +
+                ", pedido=" + pedido +
                 ", quantidade=" + quantidade +
-                ", itemName='" + itemName + '\'' +
                 '}';
     }
 }

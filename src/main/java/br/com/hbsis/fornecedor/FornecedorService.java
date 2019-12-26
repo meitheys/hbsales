@@ -80,9 +80,9 @@ public class FornecedorService {
             throw new IllegalArgumentException("Caracteres não permitidos.");
         }
 
-        if (telefoneN.length() != 13) {
+        if (telefoneN.length() < 13 || telefoneN.length() > 14) {
             long valorT = telefoneN.length();
-            throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 13! Você está colocando %s", valorT));
+            throw new IllegalArgumentException(String.format("São permitidos de 13 até 14 caracteres! Você está colocando %s", valorT));
         }
 
     }

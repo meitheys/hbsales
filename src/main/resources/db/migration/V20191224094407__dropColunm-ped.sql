@@ -1,0 +1,1 @@
+ALTER TABLE seg_pedidos DROP COLUMN quantidade;
