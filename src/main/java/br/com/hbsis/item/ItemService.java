@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +61,24 @@ public class ItemService {
 
     }
 
+    public Number pedidoTotal(Long idPedido) {
+        List<Item> produtosPedido = iItemRepository.findFkProd(idPedido);
+        Number totalValue = null;
+        double total = 0;
+
+        for (Item itemPedido : produtosPedido) {
+            total = total + itemPedido.getQuantidade() * itemPedido.getProduto().getPrecoProduto();
+        }
+
+        String stringNumero = NumberFormat.getCurrencyInstance().format(total);
+        stringNumero = stringNumero.replace("R$", "");
+        stringNumero = stringNumero.replace(",", ".");
+        totalValue = Double.parseDouble(stringNumero);
+
+        return totalValue;
+    }
+
+
     public Set<InvoiceItemDTO> findProdutosPedido(Long id) {
         Set<InvoiceItemDTO> invoiceDTOSet = new HashSet<>();
         List<Item> produtoDoPedido = iItemRepository.findFkProd(id);
@@ -96,6 +115,7 @@ public class ItemService {
     }
 
     public ItemDTO update(ItemDTO itemDTO, Long id) {
+        this.validate(itemDTO);
         Optional<Item> itemOpcional = this.iItemRepository.findById(id);
 
         if (itemOpcional.isPresent()) {

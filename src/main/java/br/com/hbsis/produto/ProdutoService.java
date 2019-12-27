@@ -141,6 +141,7 @@ public class ProdutoService {
     }
 
     public ProdutoDTO update(ProdutoDTO produtoDTO, Long codigo_produto) {
+        this.validate(produtoDTO);
         Optional<Produto> produtoDuplicadoDois = this.iProdutoRepository.findById(codigo_produto);
 
         if (produtoDuplicadoDois.isPresent()) {

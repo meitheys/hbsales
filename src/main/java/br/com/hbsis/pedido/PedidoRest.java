@@ -58,12 +58,6 @@ public class PedidoRest {
         pedidoCSV.findAllPeriodoVendas(httpServletResponse, id);
     }
 
-    @GetMapping
-    public String enviar(@RequestBody Pedido pedido) {
-        LOGGER.info("Enviando email...");
-        return this.pedidoService.enviar(pedido);
-    }
-
     @GetMapping("/funcionario/{id}")
     public List<PedidoDTO> findAll(@PathVariable Long id) {
         return this.pedidoCSV.findAllByFornecedorId(id);

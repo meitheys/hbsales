@@ -17,6 +17,8 @@ public interface IItemRepository extends JpaRepository<Item, Long> {
     List<Item> findFkProd(@Param("fkPedido") Long fkPedido);
 
     boolean existsByPedidoAndProduto(Pedido pedido, Produto idProduto);
+
+
     Optional<Item> findByPedidoAndProduto(Pedido pedido, Produto idProduto);
 
 }

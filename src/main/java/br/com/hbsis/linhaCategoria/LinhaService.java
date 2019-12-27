@@ -81,6 +81,7 @@ public class LinhaService {
     }
 
     public LinhaDTO update(LinhaDTO linhaDTO, Long codigoLinha) {
+        this.validate(linhaDTO);
         Optional<Linha> linhaSecundariaExiste = this.iLinhaRepository.findById(codigoLinha);
 
         if (linhaSecundariaExiste.isPresent()) {

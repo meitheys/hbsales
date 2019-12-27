@@ -29,6 +29,27 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "id_periodo", referencedColumnName = "id")
     private Periodo idPeriodo;
+    @Column(name = "uuid", length = 36)
+    private String uuid;
+    @ManyToOne
+    @JoinColumn(name = "fornecedor", referencedColumnName = "id")
+    private Fornecedor fornecedor;
+
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getCodPedido() {
         return codPedido;
@@ -87,6 +108,8 @@ public class Pedido {
                 ", status='" + status + '\'' +
                 ", periodo=" + periodo +
                 ", idPeriodo=" + idPeriodo +
+                ", uuid='" + uuid + '\'' +
+                ", fornecedor=" + fornecedor +
                 '}';
     }
 }

@@ -93,6 +93,7 @@ public class FuncionarioService {
     }
 
     public FuncionarioDTO update(FuncionarioDTO funcionarioDTO, Long id) {
+        this.validate(funcionarioDTO);
         Optional<Funcionario> funcionarioSecundarioExiste = this.iFuncionarioRepository.findById(id);
 
         if (funcionarioSecundarioExiste.isPresent()) {

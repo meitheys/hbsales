@@ -1,31 +1,24 @@
 package br.com.hbsis.pedido;
 
 import br.com.hbsis.email.Email;
+import br.com.hbsis.fornecedor.Fornecedor;
+import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.item.Item;
 import br.com.hbsis.item.ItemDTO;
 import br.com.hbsis.item.ItemService;
-import br.com.hbsis.periodo.Periodo;
 import br.com.hbsis.periodo.PeriodoService;
 import br.com.hbsis.produto.ProdutoService;
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpHeaders;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.html.Option;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +33,20 @@ public class PedidoService {
     private ProdutoService produtoService;
     private PeriodoService periodoService;
     private ItemService itemService;
+    private FornecedorService fornecedorService;
+    private Email email;
 
     @Autowired
     private JavaMailSender mailSender;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService, @Lazy  ItemService itemService) {
+    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService, @Lazy ItemService itemService, FornecedorService fornecedorService, Email email) {
         this.iPedidoRepository = iPedidoRepository;
         this.funcionarioService = funcionarioService;
         this.produtoService = produtoService;
         this.periodoService = periodoService;
         this.itemService = itemService;
+        this.fornecedorService = fornecedorService;
+        this.email = email;
     }
 
     public PedidoDTO save(PedidoDTO pedidoDTO){
@@ -62,10 +59,16 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         List<Item> listaDeitens = new ArrayList<>();
 
+        Funcionario funcionario = funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario());
+        Fornecedor fornecedor = fornecedorService.findByFornecedorId(pedidoDTO.getFornecedor());
+
+        pedido.setFuncionario(funcionario);
+        pedido.setFornecedor(fornecedor);
+        pedido.setUuid(funcionario.getUuid());
+        System.out.println(pedido);
         pedido.setCodPedido(pedidoDTO.getCodPedido());
         pedido.setPeriodo(LocalDate.now());
         pedido.setStatus(pedidoDTO.getStatus());
-        pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
         pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
 
         pedido = this.iPedidoRepository.save(pedido);
@@ -78,58 +81,9 @@ public class PedidoService {
             item.setQuantidade(itemDTO.getQuantidade());
             listaDeitens.add(item);
         }
-//        email.enviar(pedido, listaDeitens);
 
+        email.enviar(pedido, listaDeitens);
         return pedidoDTO.of(pedido);
-    }
-
-    public String enviar(Pedido pedido) {
-        SimpleMailMessage message = new SimpleMailMessage();
-
-        message.setSubject("Compra feita! =)");
-        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Você comprou " + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
-                + "\r\n"
-                + "\r\n"
-                + "HBSIS - Soluções em TI" + "\r\n"
-                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
-                + "(47) 2123-5400");
-
-        message.setTo(pedido.getFuncionario().getEmail());
-        message.setFrom("math.furtadonn1ptv@gmail.com");
-
-        try {
-            mailSender.send(message);
-            return "Email enviado com sucesso!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao enviar email.";
-        }
-    }
-
-    public String enviarAtualizacao(Pedido pedido) {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Pedido Atualizado! =)");
-        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Seu pedido " + ", gostariamos de lembrar que a sua data de retirada será em " + pedido.getIdPeriodo().getRetirada()
-                + "\r\n"
-                + "\r\n"
-                + "HBSIS - Soluções em TI" + "\r\n"
-                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
-                + "(47) 2123-5400");
-
-        message.setTo(pedido.getFuncionario().getEmail());
-        message.setFrom("math.furtadonn1ptv@gmail.com");
-
-        try {
-            mailSender.send(message);
-            return "Email enviado com sucesso!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao enviar email.";
-        }
-
     }
 
     private void validate(PedidoDTO pedidoDTO) {
@@ -181,6 +135,7 @@ public class PedidoService {
     }
 
     public PedidoDTO update(PedidoDTO pedidoDTO, Long id) {
+        this.validate(pedidoDTO);
         Optional<Pedido> optionalPeriodoVendas = this.iPedidoRepository.findById(id);
         this.validarUpdate(pedidoDTO, id);
 

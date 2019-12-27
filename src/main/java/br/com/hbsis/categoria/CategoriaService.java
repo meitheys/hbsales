@@ -101,6 +101,7 @@ public class CategoriaService {
     }
 
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
+        this.validate(categoriaDTO);
         Optional<Categoria> categoriaExistenteOptional = this.iCategoriaRepository.findById(id);
 
         if (categoriaExistenteOptional.isPresent()) {

@@ -66,6 +66,7 @@ public class UsuarioService {
 	}
 
 	public UsuarioDTO update(UsuarioDTO usuarioDTO, Long id) {
+		this.validate(usuarioDTO);
 		Optional<Usuario> usuarioExistenteOptional = this.iUsuarioRepository.findById(id);
 
 		if (usuarioExistenteOptional.isPresent()) {

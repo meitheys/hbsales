@@ -16,31 +16,26 @@ public class InvoiceService {
 
     private final PedidoService pedidoService;
     private final ProdutoService produtoService;
-    private final ItemService itemPedidoService;
+    private final ItemService itemService;
     private final HbApiService hbApiService;
     private static final Logger LOGGER = LoggerFactory.getLogger(br.com.hbsis.item.ItemService.class);
 
-    public InvoiceService(PedidoService pedidoService, ProdutoService produtoService, ItemService itemPedidoService, HbApiService hbApiService) {
+    public InvoiceService(PedidoService pedidoService, ProdutoService produtoService, ItemService itemService, HbApiService hbApiService) {
         this.pedidoService = pedidoService;
         this.produtoService = produtoService;
-        this.itemPedidoService = itemPedidoService;
+        this.itemService = itemService;
         this.hbApiService = hbApiService;
     }
 
     public InvoiceDTO sendInvoiceToApi(Long id) throws IOException {
-
         Pedido pedido = pedidoService.findById2(id);
         InvoiceDTO invoiceDTO = new InvoiceDTO();
-
-        invoiceDTO.setInvoiceItemDTOSet(itemPedidoService.findProdutosPedido(id));
-        //invoiceDTO.setEmployeeUuid(pedido.getUuid());
-        //invoiceDTO.setCnpjFornecedor(pedido.getIdPeriod.getCnpj());
-        //invoiceDTO.setTotalValue(itemPedidoService.totalPedido(id));
-
+        invoiceDTO.setInvoiceItemDTOSet(itemService.findProdutosPedido(id));
+        invoiceDTO.setEmployeeUuid(pedido.getUuid());
+        invoiceDTO.setCnpjFornecedor(pedido.getFornecedor().getCnpj());
+        invoiceDTO.setTotalValue((Double) itemService.pedidoTotal(id));
         hbApiService.hbInvoice(invoiceDTO);
-
 
         return invoiceDTO;
     }
-
 }

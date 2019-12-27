@@ -17,12 +17,13 @@ public class PedidoDTO {
     private LocalDate periodo;
     private long idPeriodo;
     private List<ItemDTO> itemDTO;
+    private long fornecedor;
 
-    public PedidoDTO(){
+    public PedidoDTO() {
 
     }
 
-    public PedidoDTO(long id, long funcionario, String status, LocalDate periodo, long idPeriodo, String codPedido){
+    public PedidoDTO(long id, long funcionario, String status, LocalDate periodo, long idPeriodo, String codPedido, long fornecedor) {
         this.id = id;
         this.funcionario = funcionario;
         this.status = status;
@@ -38,8 +39,17 @@ public class PedidoDTO {
                 pedido.getStatus(),
                 pedido.getPeriodo(),
                 pedido.getIdPeriodo().getId(),
-                pedido.getCodPedido()
+                pedido.getCodPedido(),
+                pedido.getFornecedor().getIdFornecedor()
         );
+    }
+
+    public long getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(long fornecedor) {
+        this.fornecedor = fornecedor;
     }
 
     public long getIdPeriodo() {
@@ -108,6 +118,8 @@ public class PedidoDTO {
                 ", status='" + status + '\'' +
                 ", periodo=" + periodo +
                 ", idPeriodo=" + idPeriodo +
+                ", itemDTO=" + itemDTO +
+                ", fornecedor=" + fornecedor +
                 '}';
     }
 }
