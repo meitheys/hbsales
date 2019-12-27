@@ -23,7 +23,7 @@ public class Fornecedor {
     private String nome;
     @Column(name = "endereco", nullable = false, length = 100)
     private String endereco;
-    @Column(name = "telefone", nullable = false, length = 12)
+    @Column(name = "telefone", nullable = false, length = 14)
     private String telefone;
     @Column(name = "email", unique = true, updatable = false, length = 50)
     private String email;

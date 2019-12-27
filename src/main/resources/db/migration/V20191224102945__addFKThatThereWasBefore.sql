@@ -1,0 +1,1 @@
+ALTER TABLE seg_item ADD CONSTRAINT fk_ID_produto FOREIGN KEY (id_produto) REFERENCES seg_produtos (id);

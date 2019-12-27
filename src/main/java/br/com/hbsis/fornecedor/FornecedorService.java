@@ -80,9 +80,9 @@ public class FornecedorService {
             throw new IllegalArgumentException("Caracteres não permitidos.");
         }
 
-        if (telefoneN.length() != 13) {
+        if (telefoneN.length() < 13 || telefoneN.length() > 14) {
             long valorT = telefoneN.length();
-            throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 13! Você está colocando %s", valorT));
+            throw new IllegalArgumentException(String.format("São permitidos de 13 até 14 caracteres! Você está colocando %s", valorT));
         }
 
     }
@@ -118,14 +118,8 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s don't exist", id));
     }
 
-    public String formatarCnpj(String cnpj) {
-        Fornecedor fornecedor = new Fornecedor();
-        String mask = fornecedor.getCnpj();
-        mask = (cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12, 14));
-        return mask;
-    }
-
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
+        this.validate(fornecedorDTO);
         Optional<Fornecedor> fornecedorExisteOptional = this.fornecedorRepository.findById(id);
 
         if (fornecedorExisteOptional.isPresent()) {

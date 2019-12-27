@@ -1,26 +1,24 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.email.Email;
+import br.com.hbsis.fornecedor.Fornecedor;
+import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
-import br.com.hbsis.periodo.Periodo;
+import br.com.hbsis.item.Item;
+import br.com.hbsis.item.ItemDTO;
+import br.com.hbsis.item.ItemService;
 import br.com.hbsis.periodo.PeriodoService;
 import br.com.hbsis.produto.ProdutoService;
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.html.Option;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,20 +27,26 @@ import java.util.Optional;
 @Service
 public class PedidoService {
 
-    @Autowired
-    private JavaMailSender mailSender;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoService.class);
     private IPedidoRepository iPedidoRepository;
     private FuncionarioService funcionarioService;
     private ProdutoService produtoService;
     private PeriodoService periodoService;
+    private ItemService itemService;
+    private FornecedorService fornecedorService;
+    private Email email;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService) {
+    @Autowired
+    private JavaMailSender mailSender;
+
+    public PedidoService(IPedidoRepository iPedidoRepository, FuncionarioService funcionarioService, ProdutoService produtoService, PeriodoService periodoService, @Lazy ItemService itemService, FornecedorService fornecedorService, Email email) {
         this.iPedidoRepository = iPedidoRepository;
         this.funcionarioService = funcionarioService;
         this.produtoService = produtoService;
         this.periodoService = periodoService;
+        this.itemService = itemService;
+        this.fornecedorService = fornecedorService;
+        this.email = email;
     }
 
     public PedidoDTO save(PedidoDTO pedidoDTO){
@@ -51,68 +55,35 @@ public class PedidoService {
         LOGGER.info("Salvando pedido");
         LOGGER.debug("Pedido {}", pedidoDTO);
 
+        Email email = new Email();
         Pedido pedido = new Pedido();
-        pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
-        pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
-        pedido.setQuantidade(pedidoDTO.getQuantidade());
-        pedido.setStatus(pedidoDTO.getStatus());
+        List<Item> listaDeitens = new ArrayList<>();
+
+        Funcionario funcionario = funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario());
+        Fornecedor fornecedor = fornecedorService.findByFornecedorId(pedidoDTO.getFornecedor());
+
+        pedido.setFuncionario(funcionario);
+        pedido.setFornecedor(fornecedor);
+        pedido.setUuid(funcionario.getUuid());
+        System.out.println(pedido);
+        pedido.setCodPedido(pedidoDTO.getCodPedido());
         pedido.setPeriodo(LocalDate.now());
+        pedido.setStatus(pedidoDTO.getStatus());
         pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
-        this.enviar(pedido);
+
         pedido = this.iPedidoRepository.save(pedido);
 
-        System.out.println(pedido);
+        for (ItemDTO itemDTO : pedidoDTO.getItemDTO()) {
+            Item item = new Item();
+            itemDTO.setPedido(pedido.getId());
+            itemService.save(itemDTO);
+            item.setProduto(produtoService.findByProdutoId(itemDTO.getProduto()));
+            item.setQuantidade(itemDTO.getQuantidade());
+            listaDeitens.add(item);
+        }
 
+        email.enviar(pedido, listaDeitens);
         return pedidoDTO.of(pedido);
-    }
-
-    public String enviar(Pedido pedido) {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Compra feita! =)");
-        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Você comprou " + pedido.getProduto().getNomeProduto() + " e a data de retirada será em " + pedido.getIdPeriodo().getRetirada()
-                + "\r\n"
-                + "\r\n"
-                + "HBSIS - Soluções em TI" + "\r\n"
-                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
-                + "(47) 2123-5400");
-
-        message.setTo(pedido.getFuncionario().getEmail());
-        message.setFrom("math.furtadonn1ptv@gmail.com");
-
-        try {
-            mailSender.send(message);
-            return "Email enviado com sucesso!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao enviar email.";
-        }
-    }
-
-    public String enviarAtualizacao(Pedido pedido) {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Pedido Atualizado! =)");
-        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Seu pedido " + pedido.getProduto().getNomeProduto() + ", gostariamos de lembrar que a sua data de retirada será em " + pedido.getIdPeriodo().getRetirada()
-                + "\r\n"
-                + "\r\n"
-                + "HBSIS - Soluções em TI" + "\r\n"
-                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
-                + "(47) 2123-5400");
-
-        message.setTo(pedido.getFuncionario().getEmail());
-        message.setFrom("math.furtadonn1ptv@gmail.com");
-
-        try {
-            mailSender.send(message);
-            return "Email enviado com sucesso!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao enviar email.";
-        }
-
     }
 
     private void validate(PedidoDTO pedidoDTO) {
@@ -120,12 +91,6 @@ public class PedidoService {
 
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getFuncionario()))) {
             throw new IllegalArgumentException("Favor informar o funcionario");
-        }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getProdutos()))) {
-            throw new IllegalArgumentException("Favor informar o produto");
-        }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getQuantidade()))) {
-            throw new IllegalArgumentException("Favor informar a quantidade");
         }
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getStatus()))) {
             throw new IllegalArgumentException("Favor informar o status");
@@ -161,12 +126,6 @@ public class PedidoService {
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getFuncionario()))) {
             throw new IllegalArgumentException("Favor informar o funcionario");
         }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getProdutos()))) {
-            throw new IllegalArgumentException("Favor informar o produto");
-        }
-        if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getQuantidade()))) {
-            throw new IllegalArgumentException("Favor informar a quantidade");
-        }
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getStatus()))) {
             throw new IllegalArgumentException("Favor informar o status");
         }
@@ -176,6 +135,7 @@ public class PedidoService {
     }
 
     public PedidoDTO update(PedidoDTO pedidoDTO, Long id) {
+        this.validate(pedidoDTO);
         Optional<Pedido> optionalPeriodoVendas = this.iPedidoRepository.findById(id);
         this.validarUpdate(pedidoDTO, id);
 
@@ -186,12 +146,10 @@ public class PedidoService {
             LOGGER.debug("Payload: {}", pedidoDTO);
 
             pedido.setFuncionario(funcionarioService.findByFuncionarioId(pedidoDTO.getFuncionario()));
-            pedido.setProduto(produtoService.findByProdutoId(pedidoDTO.getProdutos()));
-            pedido.setQuantidade(pedidoDTO.getQuantidade());
             pedido.setStatus(pedidoDTO.getStatus());
             pedido.setPeriodo(LocalDate.now());
             pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
-            this.enviarAtualizacao(pedido);
+
             pedido = this.iPedidoRepository.save(pedido);
 
             return pedidoDTO.of(pedido);
@@ -224,101 +182,6 @@ public class PedidoService {
 
         this.iPedidoRepository.deleteById(id);
     }
-
-    public void findFornecedor(HttpServletResponse httpservletresponse, Long id) {
-        try {
-            String file = "pedidosPorFornecedor.csv";
-
-            httpservletresponse.setContentType("text/csv");
-
-            httpservletresponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file + "\"");
-
-            PrintWriter printwriter = httpservletresponse.getWriter();
-
-            ICSVWriter icsvwriter = new CSVWriterBuilder(printwriter).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-            String headCVS[] = {"nome_produto", "quantidade", "razao"};
-
-            icsvwriter.writeNext(headCVS);
-
-            Periodo periodo;
-            periodo = periodoService.findByPeriodoId(id);
-
-            List<Pedido> pedidos;
-
-            pedidos = iPedidoRepository.findByPeriodo(periodo);
-
-            for (Pedido pedido : pedidos) {
-                icsvwriter.writeNext(new String[]{
-                        pedido.getProduto().getNomeProduto(),
-                        String.valueOf(pedido.getQuantidade()),
-                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao()
-
-                });
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void findAllPeriodoVendas(HttpServletResponse httpservletresponse, Long id) {
-        try {
-            String file = "pedidosPorFuncionario.csv";
-
-            httpservletresponse.setContentType("text/csv");
-
-            httpservletresponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file + "\"");
-
-            PrintWriter printwriter = httpservletresponse.getWriter();
-
-            ICSVWriter icsvwriter = new CSVWriterBuilder(printwriter).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-            String headCVS[] = {"funcionario", "produto", "quantidade", "razao/cnpj"};
-
-            icsvwriter.writeNext(headCVS);
-
-            Funcionario funcionario;
-            funcionario = funcionarioService.findByFuncionarioId(id);
-
-            List<Pedido> pedidos;
-
-            pedidos = iPedidoRepository.findByFuncionario(funcionario);
-
-            for (Pedido pedido : pedidos) {
-                icsvwriter.writeNext(new String[]{
-                        pedido.getFuncionario().getNomeFuncionario(),
-                        pedido.getProduto().getNomeProduto(),
-                        String.valueOf(pedido.getQuantidade()),
-                        pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getRazao() + "/" + pedido.getProduto().getLinha().getCategoriaLinha().getFornecedor().getCnpj()
-                });
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<PedidoDTO> findAllByFornecedorId(Long id) {
-        LOGGER.info("Buscando pedidos do funcionario: [{}]", id);
-
-        //Listando pedido por findAll no Repository, o find all no repositorio está botando tudo em uma list
-        List<Pedido> listaPedido = this.iPedidoRepository.findAllByFuncionarioId(id);
-
-        //Bota o PedidoDTO em uma array
-        List<PedidoDTO> ListaPedidoDTO = new ArrayList<>();
-
-        //FOR EACH
-        PedidoDTO pedidoDTO = new PedidoDTO();
-        if (pedidoDTO.getStatus() != "Cancelado") {
-            for (Pedido pedido : listaPedido) {
-                ListaPedidoDTO.add(PedidoDTO.of(pedido));
-                LOGGER.info("Pedidos");
-            }
-
-        }
-        return ListaPedidoDTO;
-    }
-
-
 
 }
 

@@ -1,5 +1,6 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.csv.PedidoCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,12 @@ import java.util.List;
 public class PedidoRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoRest.class);
     private final PedidoService pedidoService;
+    private final PedidoCSV pedidoCSV;
 
     @Autowired
-    public PedidoRest(PedidoService periodoService) {
+    public PedidoRest(PedidoService periodoService, PedidoCSV pedidoCSV) {
         this.pedidoService = periodoService;
+        this.pedidoCSV = pedidoCSV;
     }
 
     @PostMapping
@@ -47,23 +50,17 @@ public class PedidoRest {
 
     @GetMapping("/exportPorFornecedor/{id}")
     public void exportFornecedorCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
-        pedidoService.findFornecedor(httpServletResponse, id);
+        pedidoCSV.findFornecedor(httpServletResponse, id);
     }
 
     @GetMapping("/exportPorFuncionario/{id}")
     public void exportFuncionarioCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
-        pedidoService.findAllPeriodoVendas(httpServletResponse, id);
-    }
-
-    @GetMapping
-    public String enviar(@RequestBody Pedido pedido) {
-        LOGGER.info("Enviando email...");
-        return this.pedidoService.enviar(pedido);
+        pedidoCSV.findAllPeriodoVendas(httpServletResponse, id);
     }
 
     @GetMapping("/funcionario/{id}")
     public List<PedidoDTO> findAll(@PathVariable Long id) {
-        return this.pedidoService.findAllByFornecedorId(id);
+        return this.pedidoCSV.findAllByFornecedorId(id);
     }
 
     @PutMapping("/cancelar/{id}")

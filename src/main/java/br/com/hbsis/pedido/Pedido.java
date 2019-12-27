@@ -17,14 +17,11 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
+    @Column(name = "cod_pedido", length = 10, nullable = false)
+    private String codPedido;
     @ManyToOne
     @JoinColumn(name = "id_funcionario", referencedColumnName = "id")
     private Funcionario funcionario;
-    @ManyToOne
-    @JoinColumn(name = "produtos", referencedColumnName = "id")
-    private Produto produto;
-    @JoinColumn(name = "quantidade")
-    private long quantidade;
     @Column(name = "status")
     private String status;
     @Column(name = "periodo")
@@ -32,6 +29,35 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "id_periodo", referencedColumnName = "id")
     private Periodo idPeriodo;
+    @Column(name = "uuid", length = 36)
+    private String uuid;
+    @ManyToOne
+    @JoinColumn(name = "fornecedor", referencedColumnName = "id")
+    private Fornecedor fornecedor;
+
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getCodPedido() {
+        return codPedido;
+    }
+
+    public void setCodPedido(String codPedido) {
+        this.codPedido = codPedido;
+    }
 
     public long getId() {
         return id;
@@ -47,22 +73,6 @@ public class Pedido {
 
     public void setFuncionario(Funcionario funcionario) {
         this.funcionario = funcionario;
-    }
-
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
-
-    public long getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(long quantidade) {
-        this.quantidade = quantidade;
     }
 
     public String getStatus() {
@@ -93,12 +103,13 @@ public class Pedido {
     public String toString() {
         return "Pedido{" +
                 "id=" + id +
+                ", codPedido='" + codPedido + '\'' +
                 ", funcionario=" + funcionario +
-                ", produto=" + produto +
-                ", quantidade=" + quantidade +
                 ", status='" + status + '\'' +
                 ", periodo=" + periodo +
                 ", idPeriodo=" + idPeriodo +
+                ", uuid='" + uuid + '\'' +
+                ", fornecedor=" + fornecedor +
                 '}';
     }
 }

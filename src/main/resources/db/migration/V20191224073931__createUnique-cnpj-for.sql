@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX uidx_cnp ON seg_fornecedores (cnpj);

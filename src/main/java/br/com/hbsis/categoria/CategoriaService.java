@@ -1,22 +1,14 @@
 package br.com.hbsis.categoria;
 
 import br.com.hbsis.fornecedor.Fornecedor;
-import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
 
-import com.opencsv.*;
+import br.com.hbsis.validacoes.StringValidations;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,10 +17,12 @@ public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
     private ICategoriaRepository iCategoriaRepository;
     private final FornecedorService fornecedorService;
+    private final StringValidations stringValidations;
 
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, StringValidations stringValidations) {
         this.iCategoriaRepository = iCategoriaRepository;
         this.fornecedorService = fornecedorService;
+        this.stringValidations = stringValidations;
     }
 
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
@@ -41,13 +35,14 @@ public class CategoriaService {
 
         Categoria categoria = new Categoria();
 
+        //Formadores do codigo Categoria
         String codigo = categoriaDTO.getCodigo_categoria();
         String cnpjota = fornecedorDTO.getCnpj();
+        String codigoProcessed = stringValidations.codigoValidar(codigo);
+        String cnpjProcessed = stringValidations.quatroCNPJ(cnpjota);
+        String codigoFixo = "CAT";
 
-        String codigoProcessed = codigoValidar(codigo);
-        String cnpjProcessed = quatroCNPJ(cnpjota);
-
-        String fim = "CAT" + cnpjProcessed + codigoProcessed;
+        String fim = codigoFixo + cnpjProcessed + codigoProcessed;
 
         categoria.setCodigoCategoria(fim);
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
@@ -56,36 +51,7 @@ public class CategoriaService {
         categoria = this.iCategoriaRepository.save(categoria);
 
         return CategoriaDTO.of(categoria);
-
     }
-
-    public String codigoValidar (String codigo){
-        String codigoProcessador = StringUtils.leftPad(codigo, 3, "0");
-
-        return codigoProcessador;
-
-    }
-
-
-    public String desformatando(String cnpj) {
-
-        String desformatando =   cnpj.charAt(0)+""+cnpj.charAt(1)+
-                cnpj.charAt(3)+cnpj.charAt(4)+cnpj.charAt(5)+
-                cnpj.charAt(7)+cnpj.charAt(8)+cnpj.charAt(9)+
-                cnpj.charAt(11)+cnpj.charAt(12)+cnpj.charAt(13)+cnpj.charAt(14)+
-                cnpj.charAt(16)+cnpj.charAt(17);
-
-        return desformatando;
-
-    }
-
-    //4 ULTIMOS NUMEROS
-    public String quatroCNPJ(String cnpj){
-        String ultimosDigitos = cnpj.substring(cnpj.length() - 4);
-
-        return ultimosDigitos;
-    }
-
 
     private void validate(CategoriaDTO categoriaDTO) {
         LOGGER.info("Validando Categoria");
@@ -98,12 +64,12 @@ public class CategoriaService {
         } else {
             System.out.println("Fornecedor: " + categoriaDTO.getFornecedor());
         }
-        System.out.println(categoriaDTO.getCodigo_categoria());
-        System.out.println(categoriaDTO.getNomeCategoria());
         if (StringUtils.isEmpty(categoriaDTO.getNomeCategoria())) {
             throw new IllegalArgumentException("Categoria não deve ser vazio!!");
         }
-
+        if (StringUtils.isEmpty(categoriaDTO.getCodigo_categoria())) {
+            throw new IllegalArgumentException("Codigo da Categoria não deve ser vazio!!");
+        }
     }
 
     public Categoria findByIdString(Long id) {
@@ -114,17 +80,6 @@ public class CategoriaService {
         }
 
         throw new IllegalArgumentException(String.format("ID não existe", id));
-    }
-
-    public Categoria findByFornecedor(String fornecedor) {
-        Optional<Categoria> categoriaX = this.iCategoriaRepository.findByFornecedor(fornecedor);
-
-        if(categoriaX.isPresent()) {
-            return categoriaX.get();
-        }
-
-        throw new IllegalArgumentException("Não existe este fornecedor");
-
     }
 
     public  Categoria findByCodigoCategoria(String codigoCategoria) {
@@ -146,6 +101,7 @@ public class CategoriaService {
     }
 
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
+        this.validate(categoriaDTO);
         Optional<Categoria> categoriaExistenteOptional = this.iCategoriaRepository.findById(id);
 
         if (categoriaExistenteOptional.isPresent()) {
@@ -168,79 +124,4 @@ public class CategoriaService {
 
         this.iCategoriaRepository.deleteById(id);
     }
-
-    public String formatarCnpj(String cnpj) {
-        Fornecedor fornecedor = new Fornecedor();
-        String mask = fornecedor.getCnpj();
-        mask = (cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12, 14));
-        return mask;
-    }
-
-
-    //Trabalhando com Excel ---------------------------------------------------------------------------
-
-    public void findAll(HttpServletResponse resposta) throws Exception {
-        String arquivo = "categoria.csv";
-        resposta.setContentType("text/csv");
-        resposta.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo + "\"");
-
-        PrintWriter escritor = resposta.getWriter();
-
-        ICSVWriter icsvWriter = new CSVWriterBuilder(escritor).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-        String[] tituloCSV = {"codigo_categoria","nome_categoria", "razao", "cnpj"};
-        icsvWriter.writeNext(tituloCSV);
-
-        for (Categoria linhas : iCategoriaRepository.findAll()) {
-            icsvWriter.writeNext(new String[]{
-                    linhas.getCodigoCategoria(),
-                    linhas.getNomeCategoria(),
-                    linhas.getFornecedor().getRazao(),
-                    formatarCnpj(linhas.getFornecedor().getCnpj())
-            });
-        }
-    }
-
-    public List<Categoria> leitorTotal(MultipartFile importacao) throws Exception {
-        InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
-
-        //Perguntar
-        CSVReader leitor = new CSVReaderBuilder(insercao).withSkipLines(1).build();
-
-        List<String[]> linhaS = leitor.readAll();
-        List<Categoria> resultado = new ArrayList<>();
-
-        for (String[] linha : linhaS) {
-
-            try {
-
-                //Quebrando o arquivo CSV em valores.
-
-                String[] dados = linha[0].replaceAll("\"", "").split(";");
-
-                Categoria categoria = new Categoria();
-
-                //dados[x] = dado pego baseado na formatação csv
-
-                categoria.setCodigoCategoria(dados[0]);
-                categoria.setNomeCategoria((dados[2]));
-                Fornecedor fornecedor = fornecedorService.findByFornecedorId(Long.parseLong(dados[1]));
-                categoria.setFornecedor(fornecedor);
-
-                resultado.add(categoria);
-                System.out.println(resultado);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-        }
-        return iCategoriaRepository.saveAll(resultado);
-
-    }
-
-
-
-
-
-
 }

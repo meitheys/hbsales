@@ -73,6 +73,7 @@ public class PeriodoService {
     }
 
     public PeriodoDTO update(PeriodoDTO periodoDTO, Long id) {
+        this.validate(periodoDTO);
         Optional<Periodo> periodoDuplicado = this.iPeriodoRepository.findById(id);
 
         if (periodoDuplicado.isPresent()) {

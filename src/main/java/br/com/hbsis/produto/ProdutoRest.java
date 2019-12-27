@@ -1,5 +1,6 @@
 package br.com.hbsis.produto;
 
+import br.com.hbsis.csv.ProdutoCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 public class ProdutoRest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoRest.class);
-
     private final ProdutoService produtoService;
+    private final ProdutoCSV produtoCSV;
 
     @Autowired
-    public ProdutoRest(ProdutoService produtoService) {
+    public ProdutoRest(ProdutoService produtoService, ProdutoCSV produtoCSV) {
         this.produtoService = produtoService;
+        this.produtoCSV = produtoCSV;
     }
 
     @PostMapping
@@ -52,22 +54,19 @@ public class ProdutoRest {
         this.produtoService.delete(codigo_produto);
     }
 
-    //Excel
-
     @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
-        produtoService.findAll(file);
+        produtoCSV.findAll(file);
     }
 
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
-        produtoService.leitorTotal(arquivo);
+        produtoCSV.leitorTotal(arquivo);
     }
 
     @PostMapping("/importar/{id}")
     public void acharFornecedorProduto(@PathVariable("id") long id, @RequestParam("file") MultipartFile multipartFile) throws Exception {
-        produtoService.acharFornecedorProduto(id, multipartFile);
+        produtoCSV.acharFornecedorProduto(id, multipartFile);
     }
-
 
 }
