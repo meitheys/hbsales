@@ -55,11 +55,11 @@ public class LinhaRest {
 
     @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
-        linhaCSV.findAll(file);
+        linhaCSV.exportarCSV(file);
     }
 
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
-        linhaCSV.leitorTotal(arquivo);
+        linhaCSV.importarCSV(arquivo);
     }
 }

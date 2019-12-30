@@ -55,12 +55,12 @@ public class CategoriaRest {
 
     @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
-        categoriaCSV.findAll(file);
+        categoriaCSV.exportarCSV(file);
     }
 
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
-        categoriaCSV.leitorTotal(arquivo);
+        categoriaCSV.importarCSV(arquivo);
     }
 
 }

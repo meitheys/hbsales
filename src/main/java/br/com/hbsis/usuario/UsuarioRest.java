@@ -21,7 +21,7 @@ public class UsuarioRest {
 	}
 
 	@PostMapping
-	public UsuarioDTO save(@RequestBody UsuarioDTO usuarioDTO) {
+	public UsuarioDTO save(@RequestBody UsuarioDTO usuarioDTO) throws Exception {
 		LOGGER.info("Recebendo solicitação de persistência de usuário...");
 		LOGGER.debug("Payload: {}", usuarioDTO);
 
@@ -37,7 +37,7 @@ public class UsuarioRest {
 	}
 
 	@PutMapping("/{id}")
-	public UsuarioDTO udpate(@PathVariable("id") Long id, @RequestBody UsuarioDTO usuarioDTO) {
+	public UsuarioDTO udpate(@PathVariable("id") Long id, @RequestBody UsuarioDTO usuarioDTO) throws Exception {
 		LOGGER.info("Recebendo Update para Usuário de ID: {}", id);
 		LOGGER.debug("Payload: {}", usuarioDTO);
 

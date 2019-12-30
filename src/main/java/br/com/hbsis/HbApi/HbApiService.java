@@ -35,7 +35,6 @@ public class HbApiService {
             throw new IllegalArgumentException("Acesso não permitido");
         } else
             throw new IllegalArgumentException("Falha na comunicação " + result.getStatusCode());
-
     }
 
     //Validando produto com permissão API

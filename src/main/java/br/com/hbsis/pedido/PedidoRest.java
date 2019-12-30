@@ -50,7 +50,7 @@ public class PedidoRest {
 
     @GetMapping("/exportPorFornecedor/{id}")
     public void exportFornecedorCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
-        pedidoCSV.findFornecedor(httpServletResponse, id);
+        pedidoCSV.exportarCSV(httpServletResponse, id);
     }
 
     @GetMapping("/exportPorFuncionario/{id}")
