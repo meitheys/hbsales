@@ -56,17 +56,17 @@ public class ProdutoRest {
 
     @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
-        produtoCSV.findAll(file);
+        produtoCSV.exportarCSV(file);
     }
 
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
-        produtoCSV.leitorTotal(arquivo);
+        produtoCSV.importarCSV(arquivo);
     }
 
-    @PostMapping("/importar/{id}")
+    @PostMapping("/importarCSVPorFornecedor/{id}")
     public void acharFornecedorProduto(@PathVariable("id") long id, @RequestParam("file") MultipartFile multipartFile) throws Exception {
-        produtoCSV.acharFornecedorProduto(id, multipartFile);
+        produtoCSV.importarProdutoPorFornecedor(id, multipartFile);
     }
 
 }

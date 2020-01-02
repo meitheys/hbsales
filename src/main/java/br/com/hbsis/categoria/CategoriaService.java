@@ -43,7 +43,6 @@ public class CategoriaService {
         String codigoFixo = "CAT";
 
         String fim = codigoFixo + cnpjProcessed + codigoProcessed;
-
         categoria.setCodigoCategoria(fim);
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getFornecedor()));

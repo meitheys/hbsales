@@ -52,7 +52,7 @@ public class ProdutoCSV {
         this.produtoService = produtoService;
     }
 
-    public void findAll(HttpServletResponse resposta) throws Exception {
+    public void exportarCSV(HttpServletResponse resposta) throws Exception {
         String arquivo = "produtos.csv";
         resposta.setContentType("text/csv");
         resposta.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo + "\"");
@@ -83,7 +83,7 @@ public class ProdutoCSV {
         }
     }
 
-    public void acharFornecedorProduto(long idFornecedor, MultipartFile multipartFile) throws Exception {
+    public void importarProdutoPorFornecedor(long idFornecedor, MultipartFile multipartFile) throws Exception {
 
         InputStreamReader inputStreamReader = new InputStreamReader(multipartFile.getInputStream());
 
@@ -174,7 +174,7 @@ public class ProdutoCSV {
         }
     }
 
-    public List<Produto> leitorTotal(MultipartFile importacao) throws Exception {
+    public List<Produto> importarCSV(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
