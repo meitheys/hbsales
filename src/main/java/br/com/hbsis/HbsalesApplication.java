@@ -10,4 +10,5 @@ public class HbsalesApplication {
 		SpringApplication.run(HbsalesApplication.class, args);
 	}
 
+
 }

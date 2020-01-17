@@ -1,5 +1,7 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.HbApi.invoice.InvoiceDTO;
+import br.com.hbsis.HbApi.invoice.InvoiceItemDTO;
 import br.com.hbsis.email.Email;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
@@ -9,20 +11,20 @@ import br.com.hbsis.item.Item;
 import br.com.hbsis.item.ItemDTO;
 import br.com.hbsis.item.ItemService;
 import br.com.hbsis.periodo.PeriodoService;
+import br.com.hbsis.produto.Produto;
 import br.com.hbsis.produto.ProdutoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.http.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PedidoService {
@@ -65,13 +67,14 @@ public class PedidoService {
         pedido.setFuncionario(funcionario);
         pedido.setFornecedor(fornecedor);
         pedido.setUuid(funcionario.getUuid());
-        System.out.println(pedido);
         pedido.setCodPedido(pedidoDTO.getCodPedido());
         pedido.setPeriodo(LocalDate.now());
         pedido.setStatus(pedidoDTO.getStatus());
         pedido.setIdPeriodo(periodoService.findByPeriodoId(pedidoDTO.getIdPeriodo()));
 
         pedido = this.iPedidoRepository.save(pedido);
+
+        if(validateInvoice(pedido.getIdPeriodo().getIdFornecedor().getCnpj(), pedido.getFuncionario().getUuid(), parseItens(pedidoDTO.getItemDTO(), pedido), total(pedidoDTO.getItemDTO()))){
 
         for (ItemDTO itemDTO : pedidoDTO.getItemDTO()) {
             Item item = new Item();
@@ -82,8 +85,21 @@ public class PedidoService {
             listaDeitens.add(item);
         }
 
-        email.enviar(pedido, listaDeitens);
+        //email.enviar(pedido, listaDeitens);
+
+        }else{
+            throw new IllegalArgumentException("Validação com API falhou");
+        }
         return pedidoDTO.of(pedido);
+    }
+
+    public double total(List<ItemDTO> itens){
+        double somaTotal = 0;
+        for (ItemDTO item : itens){
+            Produto produto = produtoService.findByProdutoId(item.getProduto());
+            somaTotal += (produto.getPrecoProduto() * item.getQuantidade());
+        }
+        return somaTotal;
     }
 
     private void validate(PedidoDTO pedidoDTO) {
@@ -95,6 +111,18 @@ public class PedidoService {
         if(StringUtils.isEmpty(String.valueOf(pedidoDTO.getStatus()))) {
             throw new IllegalArgumentException("Favor informar o status");
         }
+    }
+
+    public List<Item> parseItens(List<ItemDTO> itemDTOS, Pedido pedido){
+        List<Item> items = new ArrayList<>();
+        for (ItemDTO itensDTO : itemDTOS){
+            Item itemClasse = new Item();
+            itemClasse.setPedido(pedido);
+            itemClasse.setQuantidade(itensDTO.getQuantidade());
+            itemClasse.setProduto(produtoService.findByProdutoId(itensDTO.getProduto()));
+            items.add(itemClasse);
+        }
+        return items;
     }
 
     public PedidoDTO findById(Long id) {
@@ -181,6 +209,17 @@ public class PedidoService {
         LOGGER.info("Executando delete para pedido de ID: [{}]", id);
 
         this.iPedidoRepository.deleteById(id);
+    }
+
+    public static boolean validateInvoice(String cnpjFornecedor, String uuid, List<Item> items, double totalValue) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<InvoiceDTO> entity = new HttpEntity(InvoiceDTO.parser(cnpjFornecedor, uuid, items, totalValue));
+
+        ResponseEntity<InvoiceDTO> responseEntity = restTemplate.exchange("http://10.2.54.25:9999/v2/api-docs", HttpMethod.POST, entity, InvoiceDTO.class);
+        if (responseEntity.getStatusCodeValue() == 200 || responseEntity.getStatusCodeValue() == 201) {
+            return true;
+        }
+        throw new IllegalArgumentException("Inválido. Status: [" + responseEntity.getStatusCodeValue() + "]");
     }
 
 }

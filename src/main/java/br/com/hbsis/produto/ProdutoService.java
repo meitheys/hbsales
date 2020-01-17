@@ -1,13 +1,9 @@
 package br.com.hbsis.produto;
 
 import br.com.hbsis.categoria.CategoriaService;
-import br.com.hbsis.categoria.ICategoriaRepository;
-import br.com.hbsis.fornecedor.FornecedorRepository;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.linhaCategoria.ILinhaRepository;
 import br.com.hbsis.linhaCategoria.LinhaService;
 import br.com.hbsis.validacoes.StringValidations;
-import freemarker.template.utility.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,20 +18,14 @@ public class ProdutoService {
     private final IProdutoRepository iProdutoRepository;
     private final LinhaService linhaService;
     private final CategoriaService categoriaService;
-    private final FornecedorRepository fornecedorRepository;
     private final FornecedorService fornecedorService;
-    private final ICategoriaRepository iCategoriaRepository;
-    private final ILinhaRepository iLinhaRepository;
     private final StringValidations stringValidations;
 
-    public ProdutoService(IProdutoRepository iProdutoRepository, LinhaService linhaService, CategoriaService categoriaService, FornecedorRepository fornecedorRepository, FornecedorService fornecedorService, ICategoriaRepository iCategoriaRepository, ILinhaRepository iLinhaRepository, ProdutoDTO produtoDTO, StringValidations stringValidations) {
+    public ProdutoService(IProdutoRepository iProdutoRepository, LinhaService linhaService, CategoriaService categoriaService, FornecedorService fornecedorService, ProdutoDTO produtoDTO, StringValidations stringValidations) {
         this.iProdutoRepository = iProdutoRepository;
         this.categoriaService = categoriaService;
         this.linhaService = linhaService;
-        this.fornecedorRepository = fornecedorRepository;
         this.fornecedorService = fornecedorService;
-        this.iCategoriaRepository = iCategoriaRepository;
-        this.iLinhaRepository = iLinhaRepository;
         this.stringValidations = stringValidations;
     }
 

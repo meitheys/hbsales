@@ -41,7 +41,7 @@ public class PedidoCSV {
         this.periodoService = periodoService;
     }
 
-    public void findFornecedor(HttpServletResponse httpservletresponse, Long id) {
+    public void exportarCSV(HttpServletResponse httpservletresponse, Long id) {
         try {
             String file = "pedidosPorFornecedor.csv";
 
