@@ -10,13 +10,10 @@ import java.util.Optional;
  * Classe responsável pela comunciação com o banco de dados
  */
 @Repository
-public interface FornecedorRepository extends JpaRepository<Fornecedor, Long> {
+interface FornecedorRepository extends JpaRepository<Fornecedor, Long> {
 
     boolean existsById(long id);
 
     boolean existsByCnpj(String cnpj);
     Optional<Fornecedor> findByCnpj(String cnpj);
-
-
-
 }

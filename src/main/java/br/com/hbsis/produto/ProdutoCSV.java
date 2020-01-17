@@ -1,25 +1,18 @@
-package br.com.hbsis.csv;
+package br.com.hbsis.produto;
 
 import br.com.hbsis.categoria.Categoria;
+import br.com.hbsis.categoria.CategoriaDTO;
 import br.com.hbsis.categoria.CategoriaService;
-import br.com.hbsis.categoria.ICategoriaRepository;
 import br.com.hbsis.fornecedor.Fornecedor;
-import br.com.hbsis.fornecedor.FornecedorRepository;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.linhaCategoria.ILinhaRepository;
 import br.com.hbsis.linhaCategoria.Linha;
 import br.com.hbsis.linhaCategoria.LinhaService;
-import br.com.hbsis.produto.IProdutoRepository;
-import br.com.hbsis.produto.Produto;
-import br.com.hbsis.produto.ProdutoDTO;
-import br.com.hbsis.produto.ProdutoService;
 import com.opencsv.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -35,20 +28,14 @@ public class ProdutoCSV {
     private final IProdutoRepository iProdutoRepository;
     private final LinhaService linhaService;
     private final CategoriaService categoriaService;
-    private final FornecedorRepository fornecedorRepository;
     private final FornecedorService fornecedorService;
-    private final ICategoriaRepository iCategoriaRepository;
-    private final ILinhaRepository iLinhaRepository;
     private final ProdutoService produtoService;
 
-    public ProdutoCSV(ProdutoService produtoService, IProdutoRepository iProdutoRepository, LinhaService linhaService, CategoriaService categoriaService, FornecedorRepository fornecedorRepository, FornecedorService fornecedorService, ICategoriaRepository iCategoriaRepository, ILinhaRepository iLinhaRepository, ProdutoDTO produtoDTO) {
+    public ProdutoCSV(ProdutoService produtoService, IProdutoRepository iProdutoRepository, LinhaService linhaService, CategoriaService categoriaService, FornecedorService fornecedorService, ProdutoDTO produtoDTO) {
         this.iProdutoRepository = iProdutoRepository;
         this.categoriaService = categoriaService;
         this.linhaService = linhaService;
-        this.fornecedorRepository = fornecedorRepository;
         this.fornecedorService = fornecedorService;
-        this.iCategoriaRepository = iCategoriaRepository;
-        this.iLinhaRepository = iLinhaRepository;
         this.produtoService = produtoService;
     }
 
@@ -101,15 +88,15 @@ public class ProdutoCSV {
                 Categoria categoria = new Categoria();
                 Linha linha = new Linha();
 
-                if (fornecedorRepository.existsById(idFornecedor)) {
-                    if (!iCategoriaRepository.existsByCodigoCategoria(dado[7]))
+                if (fornecedorService.existsById(idFornecedor)) {
+                    if (!categoriaService.existsByCodigoCategoria(dado[7]))
                         categoria.setCodigoCategoria(dado[7]);
                     categoria.setNomeCategoria(dado[8]);
                     categoria.setFornecedor(fornecedorService.findByFornecedorCnpj(dado[9].replaceAll("[^0-9]", "")));
-                    iCategoriaRepository.save(categoria);
-                } else if (iCategoriaRepository.existsByCodigoCategoria(dado[7])) {
+                    categoriaService.saveCat(categoria);
+                } else if (categoriaService.existsByCodigoCategoria(dado[7])) {
                     categoria = categoriaService.existsByCategoriaLinha(dado[7]);
-                    Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(categoria.getIdCategoria());
+                    Optional<CategoriaDTO> categoriaOptional = Optional.ofNullable(this.categoriaService.findById(categoria.getIdCategoria()));
 
                     if (categoriaOptional.isPresent()) {
                         LOGGER.info("Executando update em id: [{}]", categoria.getIdCategoria());
@@ -117,19 +104,19 @@ public class ProdutoCSV {
                         categoria.setCodigoCategoria(dado[7]);
                         categoria.setNomeCategoria(dado[8]);
                         categoria.setFornecedor(fornecedorService.findByFornecedorCnpj(dado[9].replaceAll("[^0-9]", "")));
-                        iCategoriaRepository.save(categoria);
+                        categoriaService.saveCat(categoria);
                     }
                 }
-                if (!iLinhaRepository.existsByCodigoLinha(dado[5])) {
+                if (!linhaService.existsByCodigoLinha(dado[5])) {
                     linha.setCodigoLinha(dado[5]);
                     linha.setNomeLinha(dado[6]);
                     linha.setCategoriaLinha(categoriaService.findByCodigoCategoria(dado[7]));
-                    iLinhaRepository.save(linha);
-                } else if (iLinhaRepository.existsByCodigoLinha(dado[5])) {
+                    linhaService.saveLin(linha);
+                } else if (linhaService.existsByCodigoLinha(dado[5])) {
                     linha = linhaService.findByLinhaCodigoLinha(dado[5]);
 
-                    Optional<Linha> linhaOptional = this.iLinhaRepository.findById(linha.getId());
-                    if (linhaOptional.isPresent()) {
+                    Optional<Linha> linhaOptional = Optional.ofNullable(this.linhaService.findById(linha.getId()));
+                    if (linhaOptional != null) {
                         Linha linhaExiste = linhaOptional.get();
                         LOGGER.debug("Payload: {}", linha);
                         LOGGER.info("Recebendo Up to Date de id [{}]", linha.getId());
@@ -137,16 +124,16 @@ public class ProdutoCSV {
                         linha.setCodigoLinha(dado[5]);
                         linha.setNomeLinha(dado[6]);
                         linha.setCategoriaLinha(categoriaService.findByCodigoCategoria(dado[7]));
-                        iLinhaRepository.save(linha);
+                        linhaService.saveLin(linha);
                     }
                 }
                 produto.setCodigoProduto(dado[0]);
                 produto.setNomeProduto(dado[1]);
                 produto.setUnidade(Long.parseLong(dado[2]));
                 produto.setPrecoProduto(Double.parseDouble(dado[3]));
-                produto.setPeso(Double.parseDouble(dado[4]));
+                produto.setPeso(Double.parseDouble(dado[4].replaceAll("[^0-9.]", "")));
                 produto.setValidade(LocalDate.parse(dado[11]));
-                produto.setUnidadePeso(dado[4]);
+                produto.setUnidadePeso(dado[4].replaceAll("[^A-Za-z]", ""));
                 linha = linhaService.findByLinhaCodigoLinha(dado[5]);
                 produto.setLinha(linha);
 

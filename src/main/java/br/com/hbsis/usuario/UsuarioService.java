@@ -4,6 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.passay.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -152,9 +154,23 @@ public class UsuarioService {
 		throw new IllegalArgumentException(String.format("ID %s não existe", id));
 	}
 
+	public Optional<Usuario> existsUsuario(String login, String senha){
+		Optional<Usuario> userOptional = iUsuarioRepository.findByLoginAndSenha(login, senha);
+
+		if(userOptional.isPresent()){
+			return userOptional;
+		}
+		throw new IllegalArgumentException("Usuario/Senha incorreto!");
+	}
+
 	public void delete(Long id) {
 		LOGGER.info("Executando delete para usuário de ID: [{}]", id);
 
 		this.iUsuarioRepository.deleteById(id);
 	}
+
+	public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+		return (UserDetails) iUsuarioRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Usuário não foi encontrado com esse login - " + login));
+	}
+
 }

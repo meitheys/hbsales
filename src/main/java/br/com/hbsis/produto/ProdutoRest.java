@@ -1,6 +1,5 @@
 package br.com.hbsis.produto;
 
-import br.com.hbsis.csv.ProdutoCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
