@@ -33,7 +33,6 @@ public class LinhaService {
         linha.setNomeLinha(linhaDTO.getNomeLinha());
         linha.setCategoriaLinha(categoriaService.existsByCategoriaLinha(linhaDTO.getCategoriaLinha()));
         linha.setCodigoLinha(stringValidations.zeroAEsquerda(linhaDTO.getCodigoLinha().toUpperCase()));
-
         linha = this.iLinhaRepository.save(linha);
 
         return linhaDTO.of(linha);
@@ -54,17 +53,14 @@ public class LinhaService {
         if (linhaDTO == null) {
             throw new IllegalArgumentException("Linha não deve ser nula");
         }
-
     }
 
     public Linha findById(long id) {
         Optional<Linha> linhaOptional = this.iLinhaRepository.findById(id);
-        System.out.println(id);
 
         if (linhaOptional.isPresent()) {
             return linhaOptional.get();
         }
-
         throw new IllegalArgumentException(String.format("ID não existe", id));
     }
 
@@ -74,7 +70,6 @@ public class LinhaService {
         if (linhaSecundaria.isPresent()) {
             return linhaSecundaria.get();
     }
-
         throw new IllegalArgumentException(String.format("codigo Linha  %s não existe", codigoLinha));
     }
 
@@ -84,8 +79,6 @@ public class LinhaService {
         if (linhaSecundaria.isPresent()) {
             return LinhaDTO.of(linhaSecundaria.get());
         }
-
-        // '%s' serve como uma marcação para quando der 'String.format', que aloca a variavel que contém o conteúdo.
         throw new IllegalArgumentException(String.format("ID %s não existe", codigoLinha));
     }
 
@@ -96,23 +89,21 @@ public class LinhaService {
         if (linhaSecundariaExiste.isPresent()) {
             Linha linhaExistente = linhaSecundariaExiste.get();
 
-            LOGGER.info("Atualizando br.com.hbsis.fornecedor... id: [{}]", linhaDTO.getCodigoLinha());
+            LOGGER.info("Atualizando Linha... id: [{}]", linhaDTO.getCodigoLinha());
             LOGGER.debug("Payload: {}", linhaDTO);
-            LOGGER.debug("Usuario Existente: {}", linhaSecundariaExiste);
+            LOGGER.debug("Linha Existente: {}", linhaSecundariaExiste);
 
             linhaExistente.setNomeLinha(linhaDTO.getNomeLinha());
             linhaExistente.setCategoriaLinha(categoriaService.existsByCategoriaLinha(linhaDTO.getCategoriaLinha()));
-
             linhaExistente = this.iLinhaRepository.save(linhaExistente);
 
             return linhaDTO.of(linhaExistente);
         }
-
         throw new IllegalArgumentException(String.format("ID %s não existe", codigoLinha));
     }
 
     public void delete(Long codigoLinha){
-        LOGGER.info("Executand odelete na linha: [{}]", codigoLinha);
+        LOGGER.info("Executando delete na linha: [{}]", codigoLinha);
 
         this.iLinhaRepository.deleteById(codigoLinha);
     }
