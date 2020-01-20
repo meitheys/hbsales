@@ -63,6 +63,9 @@ public class ProdutoService {
     private void validate(ProdutoDTO produtoDTO) {
         LOGGER.info("Validando produto");
 
+        if (produtoDTO == null) {
+            throw new IllegalArgumentException("Produto não deve ser nulo");
+        }
         if (StringUtils.isEmpty(String.valueOf(produtoDTO.getValidade()))) {
             throw new IllegalArgumentException("A data de validade do produto está nula");
         }
@@ -83,9 +86,6 @@ public class ProdutoService {
         }
         if (StringUtils.isEmpty(String.valueOf(produtoDTO.getUnidades()))) {
             throw new IllegalArgumentException("A unidade não deve ser nula");
-        }
-        if (produtoDTO == null) {
-            throw new IllegalArgumentException("Produto não deve ser nulo");
         }
 
         switch (produtoDTO.getUnidadePeso()) {

@@ -1,9 +1,14 @@
 package br.com.hbsis.fornecedor;
 
+import br.com.hbsis.categoria.Categoria;
+import br.com.hbsis.categoria.CategoriaDTO;
+import br.com.hbsis.categoria.CategoriaService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -12,9 +17,11 @@ public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
 
     private final FornecedorRepository fornecedorRepository;
+    private final CategoriaService categoriaService;
 
-    public FornecedorService(FornecedorRepository fornecedorRepository) {
+    public FornecedorService(FornecedorRepository fornecedorRepository, CategoriaService categoriaService) {
         this.fornecedorRepository = fornecedorRepository;
+        this.categoriaService = categoriaService;
     }
 
     public FornecedorDTO save(FornecedorDTO fornecedorDTO) {
@@ -44,47 +51,23 @@ public class FornecedorService {
             throw new IllegalArgumentException("Fornecedor não deve ser nulo");
         }
 
-        //Validação cnpj, se tem 14 caracteres e se são números.
-
-        boolean valida = false;
-        String forne = String.valueOf(fornecedorDTO.getCnpj());
-        String telefoneN = fornecedorDTO.getTelefone();
-        for (int i = 0; i < forne.length(); ++i) {
-            char ch = forne.charAt(i);
-            if (!(ch >= '0' && ch <= '9')) {
-                valida = true;
-            }
-
+        if (!(StringUtils.isNumeric(fornecedorDTO.getCnpj()))){
+            throw  new IllegalArgumentException("Cnpj não deve conter letras somente números");
         }
 
-        if (valida == true) {
-            throw new IllegalArgumentException("Caracteres não permitidos.");
-        }
-
-        if (forne.length() != 14) {
-            long valor = forne.length();
+        if (fornecedorDTO.getCnpj().length() != 14) {
+            long valor = fornecedorDTO.getCnpj().length();
             throw new IllegalArgumentException(String.format("O número de caracteres permitidos é 14! Você está colocando %s", valor));
         }
 
-        //Validação Telefone, se tem 13 caracteres e se são números.
-
-        boolean validaCel = false;
-        for (int i = 0; i < telefoneN.length(); ++i) {
-            char ch = telefoneN.charAt(i);
-            if (!(ch >= '0' && ch <= '9')) {
-                validaCel = true;
-            }
+        if (!(StringUtils.isNumeric(fornecedorDTO.getTelefone()))){
+            throw new IllegalArgumentException("Telefone não deve conter letras.");
         }
 
-        if (validaCel == true) {
-            throw new IllegalArgumentException("Caracteres não permitidos.");
-        }
-
-        if (telefoneN.length() < 13 || telefoneN.length() > 14) {
-            long valorT = telefoneN.length();
+        if (fornecedorDTO.getTelefone().length() < 13 || fornecedorDTO.getTelefone().length() > 14) {
+            long valorT = fornecedorDTO.getTelefone().length();
             throw new IllegalArgumentException(String.format("São permitidos de 13 até 14 caracteres! Você está colocando %s", valorT));
         }
-
     }
 
     public Fornecedor findByFornecedorCnpj(String cnpj) {
@@ -124,6 +107,9 @@ public class FornecedorService {
 
         if (fornecedorExisteOptional.isPresent()) {
             Fornecedor fornecedorExistente = fornecedorExisteOptional.get();
+            Fornecedor fornecedor;
+            fornecedor = findByFornecedorId(id);
+            List<Categoria> categorias = categoriaService.findByFornecedor(fornecedor);
 
             LOGGER.info("Atualizando br.com.hbsis.fornecedor... id: [{}]", fornecedorDTO.getId());
             LOGGER.debug("Payload: {}", fornecedorDTO);
@@ -137,6 +123,12 @@ public class FornecedorService {
             fornecedorExistente.setCnpj(fornecedorExistente.getCnpj());
 
             fornecedorExistente = this.fornecedorRepository.save(fornecedorExistente);
+
+            for (Categoria categoria : categorias) {
+                categoria.setCodigoCategoria(categoria.getCodigoCategoria().substring(7, 10));
+                categoria.setFornecedor(fornecedorExistente);
+                categoriaService.update(CategoriaDTO.of(categoria), categoria.getIdCategoria());
+            }
 
             return FornecedorDTO.of(fornecedorExistente);
         }

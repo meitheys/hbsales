@@ -1,8 +1,10 @@
 package br.com.hbsis.categoria;
 
+import br.com.hbsis.fornecedor.Fornecedor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,4 +18,7 @@ public interface ICategoriaRepository extends JpaRepository<Categoria, Long>{
 
     boolean existsByFornecedor(String fornecedor);
     Optional<Categoria> findByFornecedor(String fornecedor);
+
+    List<Categoria> findListByFornecedor(Fornecedor fornecedor);
+
 }

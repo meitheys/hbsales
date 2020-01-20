@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -30,8 +31,8 @@ public class PeriodoService {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor = fornecedorService.findByFornecedorId(periodoDTO.getIdFornecedor());
         periodo.setIdFornecedor(fornecedor);
-        periodo.setData_final(periodoDTO.getData_final());
-        periodo.setData_inicial(periodoDTO.getData_final());
+        periodo.setDataFinal(periodoDTO.getDataFinal());
+        periodo.setDataInicial(periodoDTO.getDataFinal());
         periodo.setRetirada(periodoDTO.getRetirada());
 
         periodo = this.iPeriodoRepository.save(periodo);
@@ -64,11 +65,14 @@ public class PeriodoService {
         if (periodoDTO == null) {
             throw new IllegalArgumentException("Periodo está nulo!");
         }
-        if (periodoDTO.getData_inicial().toString().isEmpty()) {
+        if (periodoDTO.getDataInicial().toString().isEmpty()) {
             throw new IllegalArgumentException("Data inicial não foi informada");
         }
-        if (periodoDTO.getData_final().toString().isEmpty()) {
+        if (periodoDTO.getDataFinal().toString().isEmpty()) {
             throw new IllegalArgumentException("Data final não foi informada");
+        }
+        if (periodoDTO.getDataInicial().isBefore(LocalDate.now()) || periodoDTO.getDataFinal().isBefore(LocalDate.now()) || periodoDTO.getRetirada().isBefore(LocalDate.now())){
+            throw new  IllegalArgumentException("A data está invalida, apontando que data um dia anterior a hoje!");
         }
     }
 
@@ -84,8 +88,8 @@ public class PeriodoService {
 
             periodo.setRetirada(periodoDTO.getRetirada());
             periodo.setIdFornecedor(fornecedorService.findByFornecedorId(periodoDTO.getIdFornecedor()));
-            periodo.setData_inicial(periodoDTO.getData_inicial());
-            periodo.setData_final(periodoDTO.getData_final());
+            periodo.setDataInicial(periodoDTO.getDataInicial());
+            periodo.setDataFinal(periodoDTO.getDataFinal());
 
             periodo = this.iPeriodoRepository.save(periodo);
 

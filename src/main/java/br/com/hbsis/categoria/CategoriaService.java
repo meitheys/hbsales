@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -111,12 +113,34 @@ public class CategoriaService {
             LOGGER.debug("Payload: {}", categoriaDTO);
             LOGGER.debug("Categoria já existe: {}", categoriaExistente);
 
+            Fornecedor fornecedorDTO = fornecedorService.findByFornecedorId(categoriaDTO.getFornecedor());
+
+            //Formadores do codigo Categoria
+            String codigo = categoriaDTO.getCodigo_categoria();
+            String cnpjota = fornecedorDTO.getCnpj();
+            String codigoProcessed = stringValidations.codigoValidar(codigo);
+            String cnpjProcessed = stringValidations.quatroCNPJ(cnpjota);
+            String codigoFixo = "CAT";
+
+            String fim = codigoFixo + cnpjProcessed + codigoProcessed;
+
+            categoriaExistente.setCodigoCategoria(fim);
             categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
             categoriaExistente = this.iCategoriaRepository.save(categoriaExistente);
 
             return CategoriaDTO.of(categoriaExistente);
         }
         throw new IllegalArgumentException(String.format("ID não existe", id));
+    }
+
+    public List<Categoria>  findByFornecedor(Fornecedor fornecedor){
+        List<Categoria> categorias = new ArrayList<>();
+        try {
+            categorias = iCategoriaRepository.findListByFornecedor(fornecedor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return categorias;
     }
 
     public void delete(Long id) {
