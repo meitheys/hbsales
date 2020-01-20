@@ -21,7 +21,7 @@ class UsuarioServiceTest {
 	private UsuarioService usuarioService;
 
 	@Test
-	public void save() {
+	public void save() throws Exception {
 		UsuarioDTO usuarioDTO = new UsuarioDTO("minha.senha", "meu.login");
 
 		Usuario usuarioMock = Mockito.mock(Usuario.class);

@@ -38,14 +38,13 @@ public class CategoriaService {
         Categoria categoria = new Categoria();
 
         //Formadores do codigo Categoria
-        String codigo = categoriaDTO.getCodigo_categoria();
+        String codigo = categoriaDTO.getCodigoCategoria();
         String cnpjota = fornecedorDTO.getCnpj();
         String codigoProcessed = stringValidations.codigoValidar(codigo);
         String cnpjProcessed = stringValidations.quatroCNPJ(cnpjota);
         String codigoFixo = "CAT";
 
         String fim = codigoFixo + cnpjProcessed + codigoProcessed;
-
         categoria.setCodigoCategoria(fim);
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getFornecedor()));
@@ -54,6 +53,16 @@ public class CategoriaService {
 
         return CategoriaDTO.of(categoria);
     }
+
+    public Categoria saveCat(Categoria categoria){
+        try {
+            categoria = iCategoriaRepository.save(categoria);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return categoria;
+    }
+
 
     private void validate(CategoriaDTO categoriaDTO) {
         LOGGER.info("Validando Categoria");
@@ -69,7 +78,7 @@ public class CategoriaService {
         if (StringUtils.isEmpty(categoriaDTO.getNomeCategoria())) {
             throw new IllegalArgumentException("Categoria não deve ser vazio!!");
         }
-        if (StringUtils.isEmpty(categoriaDTO.getCodigo_categoria())) {
+        if (StringUtils.isEmpty(categoriaDTO.getCodigoCategoria())) {
             throw new IllegalArgumentException("Codigo da Categoria não deve ser vazio!!");
         }
     }
@@ -91,6 +100,10 @@ public class CategoriaService {
             return categoriaOptional.get();
         }
         throw new IllegalArgumentException(String.format("codigoCategoria não existe", codigoCategoria));
+    }
+
+    public boolean existsByCodigoCategoria(String codigoCategoria) {
+        return iCategoriaRepository.existsByCodigoCategoria(codigoCategoria);
     }
 
     public  Categoria existsByCategoriaLinha(String categoriaLinha) {
@@ -148,4 +161,16 @@ public class CategoriaService {
 
         this.iCategoriaRepository.deleteById(id);
     }
+
+    public CategoriaDTO findById(Long id) {
+        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
+
+        if (categoriaOptional.isPresent()) {
+            Categoria categoria = categoriaOptional.get();
+            return CategoriaDTO.of(categoria);
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
 }

@@ -1,11 +1,7 @@
-package br.com.hbsis.csv;
+package br.com.hbsis.linhaCategoria;
 
 import br.com.hbsis.categoria.Categoria;
 import br.com.hbsis.categoria.CategoriaService;
-import br.com.hbsis.categoria.ICategoriaRepository;
-import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.linhaCategoria.ILinhaRepository;
-import br.com.hbsis.linhaCategoria.Linha;
 import com.opencsv.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class LinhaCSV {
+public class LinhaCategoriaCSV {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinhaCSV.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinhaCategoriaCSV.class);
     private final ILinhaRepository iLinhaRepository;
 
-    public LinhaCSV(ILinhaRepository iLinhaRepository, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
+    public LinhaCategoriaCSV(ILinhaRepository iLinhaRepository) {
         this.iLinhaRepository = iLinhaRepository;
     }
 
-    public void findAll(HttpServletResponse resposta) throws Exception {
+    public void exportarCSV(HttpServletResponse resposta) throws Exception {
         String arquivo = "linha.csv";
         resposta.setContentType("text/csv");
         resposta.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo + "\"");
@@ -44,7 +40,7 @@ public class LinhaCSV {
         }
     }
 
-    public List<Linha> leitorTotal(MultipartFile importacao) throws Exception {
+    public List<Linha> importarCSV(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar

@@ -1,6 +1,5 @@
 package br.com.hbsis.linhaCategoria;
 
-import br.com.hbsis.csv.LinhaCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 public class LinhaRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhaRest.class);
     private LinhaService linhaService;
-    private LinhaCSV linhaCSV;
+    private LinhaCategoriaCSV linhaCategoriaCSV;
+
 
     @Autowired
-    public LinhaRest(LinhaService linhaService, LinhaCSV linhaCSV) {
+    public LinhaRest(LinhaService linhaService, LinhaCategoriaCSV linhaCategoriaCSV) {
         this.linhaService = linhaService;
-        this.linhaCSV = linhaCSV;
+        this.linhaCategoriaCSV = linhaCategoriaCSV;
     }
 
     @PostMapping
@@ -55,11 +55,11 @@ public class LinhaRest {
 
     @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
-        linhaCSV.findAll(file);
+        linhaCategoriaCSV.exportarCSV(file);
     }
 
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
-        linhaCSV.leitorTotal(arquivo);
+        linhaCategoriaCSV.importarCSV(arquivo);
     }
 }

@@ -1,8 +1,6 @@
-package br.com.hbsis.csv;
+package br.com.hbsis.categoria;
 
-import br.com.hbsis.categoria.Categoria;
-import br.com.hbsis.categoria.CategoriaService;
-import br.com.hbsis.categoria.ICategoriaRepository;
+
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.validacoes.StringValidations;
@@ -12,30 +10,28 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
 public class CategoriaCSV {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaCSV.class);
     private ICategoriaRepository iCategoriaRepository;
-    private final CategoriaService categoriaService;
     private final FornecedorService fornecedorService;
     private final StringValidations stringValidations;
 
-    public CategoriaCSV(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, CategoriaService categoriaService, StringValidations stringValidations) {
+    public CategoriaCSV(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, StringValidations stringValidations) {
         this.iCategoriaRepository = iCategoriaRepository;
         this.fornecedorService = fornecedorService;
-        this.categoriaService = categoriaService;
         this.stringValidations = stringValidations;
     }
 
-    public void findAll(HttpServletResponse resposta) throws Exception {
+    public void exportarCSV(HttpServletResponse resposta) throws Exception {
         String arquivo = "categoria.csv";
         resposta.setContentType("text/csv");
         resposta.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo + "\"");
@@ -56,7 +52,7 @@ public class CategoriaCSV {
         }
     }
 
-    public List<Categoria> leitorTotal(MultipartFile importacao) throws Exception {
+    public List<Categoria> importarCSV(MultipartFile importacao) throws Exception {
         InputStreamReader insercao = new InputStreamReader(importacao.getInputStream());
 
         //Perguntar
@@ -66,17 +62,10 @@ public class CategoriaCSV {
         List<Categoria> resultado = new ArrayList<>();
 
         for (String[] linha : linhaS) {
-
             try {
-
-                //Quebrando o arquivo CSV em valores.
-
                 String[] dados = linha[0].replaceAll("\"", "").split(";");
 
                 Categoria categoria = new Categoria();
-
-                //dados[x] = dado pego baseado na formatação csv
-
                 categoria.setCodigoCategoria(dados[0]);
                 categoria.setNomeCategoria((dados[2]));
                 Fornecedor fornecedor = fornecedorService.findByFornecedorId(Long.parseLong(dados[1]));
@@ -87,10 +76,10 @@ public class CategoriaCSV {
 
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
         }
         return iCategoriaRepository.saveAll(resultado);
 
     }
 }
+

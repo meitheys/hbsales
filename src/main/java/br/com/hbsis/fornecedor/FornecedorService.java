@@ -91,6 +91,14 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public boolean existsById(Long id) {
+        return fornecedorRepository.existsById(id);
+    }
+
+    public boolean existsByCnpj(String cnpj) {
+        return fornecedorRepository.existsByCnpj(cnpj);
+    }
+
     public Fornecedor findByFornecedorId(Long id) {
         Optional<Fornecedor> fornecedorOptional = this.fornecedorRepository.findById(id);
 

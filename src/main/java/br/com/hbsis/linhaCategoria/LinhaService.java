@@ -38,6 +38,15 @@ public class LinhaService {
         return linhaDTO.of(linha);
     }
 
+    public Linha saveLin(Linha linha){
+        try {
+            linha = iLinhaRepository.save(linha);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return linha;
+    }
+
     private void validate(LinhaDTO linhaDTO) {
         LOGGER.info("Validando linha");
 
@@ -97,5 +106,9 @@ public class LinhaService {
         LOGGER.info("Executando delete na linha: [{}]", codigoLinha);
 
         this.iLinhaRepository.deleteById(codigoLinha);
+    }
+
+    public boolean existsByCodigoLinha(String codigoLinha) {
+        return iLinhaRepository.existsByCodigoLinha(codigoLinha);
     }
 }

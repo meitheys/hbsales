@@ -1,6 +1,5 @@
 package br.com.hbsis.categoria;
 
-import br.com.hbsis.csv.CategoriaCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,12 +54,12 @@ public class CategoriaRest {
 
     @GetMapping("/exportarcsv")
     public void exportCSV(HttpServletResponse file) throws Exception {
-        categoriaCSV.findAll(file);
+        categoriaCSV.exportarCSV(file);
     }
 
     @PostMapping("/importarcsv")
     public void importCSV(@RequestParam("file") MultipartFile arquivo) throws Exception {
-        categoriaCSV.leitorTotal(arquivo);
+        categoriaCSV.importarCSV(arquivo);
     }
 
 }

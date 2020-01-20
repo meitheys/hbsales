@@ -11,14 +11,14 @@ import java.util.Optional;
  * Classe responsável pela comunciação com o banco de dados
  */
 @Repository
-public interface ICategoriaRepository extends JpaRepository<Categoria, Long>{
+interface ICategoriaRepository extends JpaRepository<Categoria, Long>{
 
-    boolean existsByCodigoCategoria(String codigoCategoria);
-    Optional<Categoria> findByCodigoCategoria(String codigoCategoria);
+boolean existsByCodigoCategoria(String codigoCategoria);
+Optional<Categoria> findByCodigoCategoria(String codigoCategoria);
 
-    boolean existsByFornecedor(String fornecedor);
-    Optional<Categoria> findByFornecedor(String fornecedor);
+boolean existsByFornecedor(String fornecedor);
+Optional<Categoria> findByFornecedor(String fornecedor);
 
-    List<Categoria> findListByFornecedor(Fornecedor fornecedor);
+List<Categoria> findListByFornecedor(Fornecedor fornecedor);
 
 }

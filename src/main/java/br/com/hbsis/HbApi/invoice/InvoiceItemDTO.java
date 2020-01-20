@@ -2,44 +2,33 @@ package br.com.hbsis.HbApi.invoice;
 
 import br.com.hbsis.item.Item;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class InvoiceItemDTO {
+        private String itemName;
+        private long amount;
 
-    private int amount;
-    private String itemName;
+        public InvoiceItemDTO() {
+        }
 
-    public InvoiceItemDTO(String nomeProduto, long quantidade) {
-        this.itemName = itemName;
-        this.amount = amount;
+        public InvoiceItemDTO(String itemName, long amount) {
+            this.itemName = itemName;
+            this.amount = amount;
+        }
+
+
+    public static List<InvoiceItemDTO> parserToList(List<Item> items) {
+            return items.stream().map(item -> new InvoiceItemDTO(item.getProduto().getNomeProduto(), item.getQuantidade())).collect(Collectors.toList());
+        }
+
+        public String getItemName() {
+            return itemName;
+        }
+
+        public long getAmount() {
+            return amount;
+        }
     }
 
-    public static Set<InvoiceItemDTO> parseList(Set<Item> items) {
-        return items.stream().map(item -> new InvoiceItemDTO(item.getProduto().getNomeProduto(), item.getQuantidade())).collect(Collectors.toSet());
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public String getItemName() {
-        return itemName;
-    }
-
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
-
-    @Override
-    public String toString() {
-        return "InvoiceItemDTO{" +
-                "amount=" + amount +
-                ", itemName='" + itemName + '\'' +
-                '}';
-    }
-}
