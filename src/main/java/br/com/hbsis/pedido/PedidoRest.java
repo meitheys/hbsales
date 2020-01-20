@@ -1,6 +1,5 @@
 package br.com.hbsis.pedido;
 
-import br.com.hbsis.csv.PedidoCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,21 +47,6 @@ public class PedidoRest {
         this.pedidoService.delete(id);
     }
 
-    @GetMapping("/exportPorFornecedor/{id}")
-    public void exportFornecedorCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
-        pedidoCSV.exportarCSV(httpServletResponse, id);
-    }
-
-    @GetMapping("/exportPorFuncionario/{id}")
-    public void exportFuncionarioCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
-        pedidoCSV.findAllPeriodoVendas(httpServletResponse, id);
-    }
-
-    @GetMapping("/funcionario/{id}")
-    public List<PedidoDTO> findAll(@PathVariable Long id) {
-        return this.pedidoCSV.findAllByFornecedorId(id);
-    }
-
     @PutMapping("/cancelar/{id}")
     public void cancelar(@PathVariable("id") Long id) {
         LOGGER.info("Cancelando...");
@@ -75,4 +59,19 @@ public class PedidoRest {
         this.pedidoService.retirar(id);
     }
 
+    @GetMapping("/exportPorFornecedor/{id}")
+    public void exportFornecedorCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
+        pedidoCSV.exportarCSV(httpServletResponse, id);
+    }
+
+    @GetMapping("/exportPorFuncionario/{id}")
+    public void exportFuncionarioCSV(HttpServletResponse httpServletResponse, @PathVariable("id") Long id) {
+        pedidoCSV.importPeriodoVendas(httpServletResponse, id);
+    }
+
+    //Usado para teste em Spring Security com Angular
+    @GetMapping("/funcionario/{id}")
+    public List<PedidoDTO> findAll(@PathVariable Long id) {
+        return this.pedidoCSV.importarPorFornecedor(id);
+    }
 }

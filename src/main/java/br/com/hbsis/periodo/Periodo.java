@@ -14,24 +14,14 @@ public class Periodo{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id")
     private Fornecedor idFornecedor;
     @Column(name = "data_inicial")
-    private LocalDate data_inicial;
+    private LocalDate dataInicial;
     @Column(name = "data_final")
-    private LocalDate data_final;
+    private LocalDate dataFinal;
     @Column(name = "retirada")
     private LocalDate retirada;
-    @Column(name = "descricao")
-    private String descricao;
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
 
     public Long getId() {
         return id;
@@ -49,20 +39,20 @@ public class Periodo{
         this.idFornecedor = idFornecedor;
     }
 
-    public LocalDate getData_inicial() {
-        return data_inicial;
+    public LocalDate getDataInicial() {
+        return dataInicial;
     }
 
-    public void setData_inicial(LocalDate data_inicial) {
-        this.data_inicial = data_inicial;
+    public void setDataInicial(LocalDate dataInicial) {
+        this.dataInicial = dataInicial;
     }
 
-    public LocalDate getData_final() {
-        return data_final;
+    public LocalDate getDataFinal() {
+        return dataFinal;
     }
 
-    public void setData_final(LocalDate data_final) {
-        this.data_final = data_final;
+    public void setDataFinal(LocalDate dataFinal) {
+        this.dataFinal = dataFinal;
     }
 
     public LocalDate getRetirada() {
@@ -78,10 +68,9 @@ public class Periodo{
         return "Periodo{" +
                 "id=" + id +
                 ", idFornecedor=" + idFornecedor +
-                ", data_inicial=" + data_inicial +
-                ", data_final=" + data_final +
+                ", data_inicial=" + dataInicial +
+                ", dataFinal=" + dataFinal +
                 ", retirada=" + retirada +
-                ", descricao='" + descricao + '\'' +
                 '}';
     }
 }
