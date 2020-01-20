@@ -37,30 +37,4 @@ public class Email {
             e.printStackTrace();
         }
     }
-
-    public String enviarAtualizacao(Pedido pedido) {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Pedido Atualizado! =)");
-        message.setText("Bom dia caro " + pedido.getFuncionario().getNomeFuncionario() + "\r\n"
-                + " Seu pedido " + pedido.getId() + " foi atualizado, gostariamos de lembrar que a sua data de retirada será em " + pedido.getIdPeriodo().getRetirada()
-                + "\r\n"
-                + "\r\n"
-                + "HBSIS - Soluções em TI" + "\r\n"
-                + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
-                + "(47) 2123-5400");
-
-        message.setTo(pedido.getFuncionario().getEmail());
-        message.setFrom("math.furtadonn1ptv@gmail.com");
-
-        try {
-            mailSender.send(message);
-            return "Email enviado com sucesso!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao enviar email.";
-        }
-
-    }
-
 }

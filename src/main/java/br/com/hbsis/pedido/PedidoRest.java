@@ -40,13 +40,6 @@ public class PedidoRest {
         return this.pedidoService.update(pedidoDTO, id);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") Long id) {
-        LOGGER.info("Deletando pedido com id: {}", id);
-
-        this.pedidoService.delete(id);
-    }
-
     @PutMapping("/cancelar/{id}")
     public void cancelar(@PathVariable("id") Long id) {
         LOGGER.info("Cancelando...");
