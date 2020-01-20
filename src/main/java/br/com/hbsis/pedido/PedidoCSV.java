@@ -1,11 +1,7 @@
-package br.com.hbsis.csv;
+package br.com.hbsis.pedido;
 
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
-import br.com.hbsis.pedido.IPedidoRepository;
-import br.com.hbsis.pedido.Pedido;
-import br.com.hbsis.pedido.PedidoDTO;
-import br.com.hbsis.pedido.PedidoService;
 import br.com.hbsis.periodo.Periodo;
 import br.com.hbsis.periodo.PeriodoService;
 import br.com.hbsis.produto.ProdutoService;
@@ -74,7 +70,7 @@ public class PedidoCSV {
         }
     }
 
-    public void findAllPeriodoVendas(HttpServletResponse httpservletresponse, Long id) {
+    public void importPeriodoVendas(HttpServletResponse httpservletresponse, Long id) {
         try {
             String file = "pedidosPorFuncionario.csv";
 
@@ -107,16 +103,13 @@ public class PedidoCSV {
         }
     }
 
-    public List<PedidoDTO> findAllByFornecedorId(Long id) {
+    public List<PedidoDTO> importarPorFornecedor(Long id) {
         LOGGER.info("Buscando pedidos do funcionario: [{}]", id);
 
-        //Listando pedido por findAll no Repository, o find all no repositorio está botando tudo em uma list
         List<Pedido> listaPedido = this.iPedidoRepository.findAllByFuncionarioId(id);
 
-        //Bota o PedidoDTO em uma array
         List<PedidoDTO> ListaPedidoDTO = new ArrayList<>();
 
-        //FOR EACH
         PedidoDTO pedidoDTO = new PedidoDTO();
         if (pedidoDTO.getStatus() != "Cancelado") {
             for (Pedido pedido : listaPedido) {
@@ -127,4 +120,5 @@ public class PedidoCSV {
         }
         return ListaPedidoDTO;
     }
+
 }

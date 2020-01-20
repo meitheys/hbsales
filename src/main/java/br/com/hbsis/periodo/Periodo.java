@@ -14,7 +14,7 @@ public class Periodo{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id")
     private Fornecedor idFornecedor;
     @Column(name = "data_inicial")
     private LocalDate dataInicial;
@@ -22,16 +22,6 @@ public class Periodo{
     private LocalDate dataFinal;
     @Column(name = "retirada")
     private LocalDate retirada;
-    @Column(name = "descricao")
-    private String descricao;
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
 
     public Long getId() {
         return id;
@@ -81,7 +71,6 @@ public class Periodo{
                 ", data_inicial=" + dataInicial +
                 ", dataFinal=" + dataFinal +
                 ", retirada=" + retirada +
-                ", descricao='" + descricao + '\'' +
                 '}';
     }
 }

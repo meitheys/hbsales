@@ -10,7 +10,7 @@ public class PeriodoDTO {
     private LocalDate dataInicial;
     private LocalDate dataFinal;
     private LocalDate retirada;
-    private String descricao;
+
 
     public PeriodoDTO() {
     }
@@ -21,7 +21,6 @@ public class PeriodoDTO {
         this.dataInicial = dataInicial;
         this.dataFinal = dataFinal;
         this.retirada = retirada;
-        this.descricao = descricao;
     }
 
     public static PeriodoDTO of(Periodo periodo) {
@@ -32,14 +31,6 @@ public class PeriodoDTO {
                 periodo.getDataFinal(),
                 periodo.getRetirada()
         );
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
     }
 
     public long getId() {
@@ -90,7 +81,6 @@ public class PeriodoDTO {
                 ", data_inicial=" + dataInicial +
                 ", data_final=" + dataFinal +
                 ", retirada=" + retirada +
-                ", descricao='" + descricao + '\'' +
                 '}';
     }
 }

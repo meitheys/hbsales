@@ -84,9 +84,7 @@ public class PedidoService {
             item.setQuantidade(itemDTO.getQuantidade());
             listaDeitens.add(item);
         }
-
-        //email.enviar(pedido, listaDeitens);
-
+        email.enviar(pedido, listaDeitens);
         }else{
             throw new IllegalArgumentException("Validação com API falhou");
         }
@@ -202,14 +200,8 @@ public class PedidoService {
 
             pedido.setStatus("Retirado");
             this.iPedidoRepository.save(pedido);
-            LOGGER.info("Cancelado!");
+            LOGGER.info("Retirado!");
         }
-
-    public void delete(Long id) {
-        LOGGER.info("Executando delete para pedido de ID: [{}]", id);
-
-        this.iPedidoRepository.deleteById(id);
-    }
 
     public static boolean validateInvoice(String cnpjFornecedor, String uuid, List<Item> items, double totalValue) {
         RestTemplate restTemplate = new RestTemplate();
@@ -221,6 +213,5 @@ public class PedidoService {
         }
         throw new IllegalArgumentException("Inválido. Status: [" + responseEntity.getStatusCodeValue() + "]");
     }
-
 }
 
