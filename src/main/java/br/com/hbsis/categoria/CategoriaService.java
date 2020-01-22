@@ -129,7 +129,7 @@ public class CategoriaService {
             Fornecedor fornecedorDTO = fornecedorService.findByFornecedorId(categoriaDTO.getFornecedor());
 
             //Formadores do codigo Categoria
-            String codigo = categoriaDTO.getCodigo_categoria();
+            String codigo = categoriaDTO.getCodigoCategoria();
             String cnpjota = fornecedorDTO.getCnpj();
             String codigoProcessed = stringValidations.codigoValidar(codigo);
             String cnpjProcessed = stringValidations.quatroCNPJ(cnpjota);

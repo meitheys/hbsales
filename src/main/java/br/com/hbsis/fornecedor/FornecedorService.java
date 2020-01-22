@@ -6,6 +6,7 @@ import br.com.hbsis.categoria.CategoriaService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class FornecedorService {
     private final FornecedorRepository fornecedorRepository;
     private final CategoriaService categoriaService;
 
-    public FornecedorService(FornecedorRepository fornecedorRepository, CategoriaService categoriaService) {
+    public FornecedorService(FornecedorRepository fornecedorRepository, @Lazy CategoriaService categoriaService) {
         this.fornecedorRepository = fornecedorRepository;
         this.categoriaService = categoriaService;
     }
