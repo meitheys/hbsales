@@ -7,7 +7,6 @@
 <li>Java</li>
 <li>Spring Boot</li>
 <li>Company's APIs</li>
-<li>JS</li>
 </ul>
 <h4>...to focus in the Back-end Developing</h4>
 
