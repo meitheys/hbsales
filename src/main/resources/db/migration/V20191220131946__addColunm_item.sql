@@ -1,1 +1,0 @@
-ALTER TABLE seg_item ADD item_name VARCHAR (100);

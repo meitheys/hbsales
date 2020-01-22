@@ -2,6 +2,7 @@ package br.com.hbsis.funcionario;
 
 import br.com.hbsis.HbApi.HbApiService;
 import br.com.hbsis.HbApi.employee.EmployeeSavingDTO;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -33,7 +34,7 @@ public class FuncionarioService {
 
         Funcionario funcionario = new Funcionario();
         funcionario.setEmail(funcionarioDTO.getEmail());
-        funcionario.setUuid(hbApiService.hbUuidGenerator(funcionarioDTO.getUuid()));
+        funcionario.setUuid(funcionarioDTO.getUuid());
         funcionario.setNomeFuncionario(funcionarioDTO.getNome());
         funcionario = this.iFuncionarioRepository.save(funcionario);
 
@@ -45,6 +46,11 @@ public class FuncionarioService {
 
         if (funcionarioDTO == null) {
             throw new IllegalArgumentException("Funcionario nulo!");
+        }
+
+        hbEmplyeeAdminFuncionario(funcionarioDTO);
+        if (StringUtils.isEmpty(funcionarioDTO.getUuid())){
+            throw new IllegalArgumentException("UUID do funcionário não deve ser nulo");
         }
 
     }

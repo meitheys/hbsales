@@ -18,9 +18,7 @@ public class ProdutoDTO {
     private String unidadePeso;
     private LocalDate validade;
 
-    public ProdutoDTO() {
-
-    }
+    public ProdutoDTO() { }
 
     public ProdutoDTO(long idProduto, String codigoProduto, String nomeProduto, double precoProduto, long linha, long unidades, String unidadePeso, double peso, LocalDate validade) {
         this.idProduto = idProduto;

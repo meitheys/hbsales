@@ -84,7 +84,7 @@ public class PedidoService {
             item.setQuantidade(itemDTO.getQuantidade());
             listaDeitens.add(item);
         }
-        email.enviar(pedido, listaDeitens);
+        this.email.enviar(pedido);
         }else{
             throw new IllegalArgumentException("Validação com API falhou");
         }
